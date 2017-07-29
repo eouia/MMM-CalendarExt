@@ -1,0 +1,376 @@
+.CALEXT .fa-stack-1x {
+    color:#000;
+}
+/*
+.CALEXT .fulldayevent .fa-stack-1x {
+    color:#333;
+}
+*/
+
+
+.CALEXT .upcoming .event {
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.CALEXT .startHere {
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+
+.CALEXT .endHere {
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+
+.CALEXT .wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: flex-start;
+}
+
+
+.CALEXT .slot {
+    margin-left:5px;
+    margin-right:5px;
+    flex-grow: 1;
+    flex-basis: 100px;
+    box-sizing:border-box;
+    margin-bottom:5px;
+}
+
+
+
+.CALEXT .slot .header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: baseline;
+    align-content: flex-end;
+    border-bottom: 2px solid #CCC;
+    padding:2px;
+    margin-bottom:0;
+    border-radius:15px 15px 0 0;
+}
+
+.CALEXT .slot .header > * {
+    opacity:1.0;
+}
+.CALEXT .slot .header .title,
+.CALEXT .slot .header .subtitle {
+    flex-grow: 1;
+    flex-basis: auto;
+    line-height:100%;
+    opacity:1;
+}
+
+.CALEXT .header .title {
+    font-weight:bold;
+    text-align:left;
+    color:#FFF;
+    padding-left:10px;
+}
+
+
+
+.CALEXT .header .subtitle {
+    font-weight:bold;
+    text-align:right;
+    font-size:50%;
+    padding-right:10px;
+}
+
+.CALEXT .wrapper .thismonth .header,
+.CALEXT .wrapper .thisweek .header,
+.CALEXT .wrapper .today .header {
+    background:rgba(255,255,255,0.9);
+}
+
+.CALEXT .wrapper .thismonth .header .subtitle,
+.CALEXT .wrapper .thisweek .header .subtitle,
+.CALEXT .wrapper .today .header .subtitle {
+    color:#000;
+}
+
+.CALEXT .wrapper .thismonth .header .title,
+.CALEXT .wrapper .thisweek .header .title,
+.CALEXT .wrapper .today .header .title {
+    color:#000;
+}
+
+
+.CALEXT .weekday_6 .header {
+    background:rgba(51,51,153,0.5);
+}
+
+.CALEXT .weekday_7 .header {
+    background:rgba(153,51,51,0.5);
+}
+
+.CALEXT .weekday_6 .subtitle {
+    color:#99F;
+}
+
+.CALEXT .weekday_7 .subtitle {
+    color:#F99;
+}
+
+.CALEXT .daily .fulldayevent .eventTime {
+    display:none;
+}
+
+.CALEXT .monthly .eventLocation {
+    /*
+    display:none;
+    */
+}
+
+.CALEXT .events {
+    list-style:none;
+    padding:0;
+    margin:0;
+
+}
+
+.CALEXT .events {
+    color:#FFF;
+}
+
+.CALEXT .fulldayevent {
+    color:#000;
+}
+
+
+.CALEXT .overflowed {
+    overflow:hidden;
+}
+
+.CALEXT .overflowed .events {
+    position:relative;
+    animation:scroll linear infinite;
+}
+
+@keyframes scroll{
+    from {
+        transform: translate3d(0,0,0);
+    }
+    to {
+        transform: translate3d(0,-100%,0);
+    }
+}
+
+
+.CALEXT .events .event {
+    text-align:left;
+    font-size:50%;
+    padding:0;
+    margin:0;
+    font-weight:bold;
+    line-height:100%;
+    margin-top : 1px;
+    background:rgba(51,51,51,0.5);
+    display:flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.CALEXT .event .symbol {
+    order:1;
+    display:block;
+    flex-basis:36px;
+    text-align:center;
+    font-size:80%;
+}
+.CALEXT .event .eventContainer {
+    text-align:left;
+    order:2;
+    padding-left:5px;
+    display:flex;
+    width:100%;
+    flex-direction: column;
+    padding:2px 5px 2px 5px;
+
+}
+
+.CALEXT .eventTime {
+    text-align:right;
+    font-size:80%;
+    font-weight:normal;
+    order:1;
+}
+
+.CALEXT .eventLocation {
+    text-align:right;
+    font-size:80%;
+    font-weight:normal;
+    order:3;
+}
+
+.CALEXT .eventContent {
+    order:2;
+    width:100%;
+    text-align:left;
+}
+
+.CALEXT .upcoming .eventTime {
+    order:2;
+}
+
+
+.CALEXT .upcoming .eventContent {
+    order:1;
+}
+
+.CALEXT .calendarMonth {
+    margin:auto;
+    max-width: 90%;
+}
+
+.CALEXT  #calext_month .calendarMonth .column_8 {
+}
+
+.CALEXT .calendarMonth .column_7 {
+}
+
+.CALEXT .calendarMont .eventContent {
+    text-overflow:ellipsis;
+}
+
+.CALEXT .calendarMonth th {
+    font-size: 70%;
+    font-weight: normal;
+    border:1px solid #000;
+}
+
+.CALEXT .calendarMonth td {
+    padding:0;
+    margin:0;
+    vertical-align:top;
+    border:1px solid #000;
+}
+
+.CALEXT .calendarMonth .header {
+    padding:0;
+    margin:0;
+    text-align:right;
+}
+
+.CALEXT .calendarMonth .header .title {
+    font-size:50%;
+    padding:0;
+    padding-right:5px;
+    margin:0;
+    text-align:right;
+    line-height:100%;
+}
+
+.CALEXT #calext_month .calendarMonth .header {
+    background:#222;
+}
+
+.CALEXT #calext_month .calendarMonth .thismonth .header {
+    background:#999;
+}
+
+.CALEXT #calext_month .calendarMonth .thismonth.weekday_6 .header {
+    background:#339;
+}
+
+.CALEXT #calext_month .calendarMonth .thismonth.weekday_7 .header {
+    background:#933;
+}
+.CALEXT #calext_month .calendarMonth .thismonth.today .header {
+    background:#FFF;
+}
+
+.CALEXT #calext_month .calendarMonth .header .title {
+    color:#FFF;
+}
+
+.CALEXT #calext_month .calendarMonth .lastmonth .header .title,
+.CALEXT #calext_month .calendarMonth .nextmonth .header .title {
+    color:#666;
+}
+
+.CALEXT #calext_month .calendarMonth .today .header .title {
+    color:#000;
+}
+
+
+
+.CALEXT #calext_month .weeks .weekday_6  {
+    background:rgba(51,51,153,0.3);
+}
+
+.CALEXT #calext_month .weeks .weekday_7 {
+    background:rgba(153,51,153,0.3);
+}
+
+.CALEXT #calext_month .calendarMonth .weekday_6 {
+    background:rgba(51,51,153,0.2);
+    color:#99F;
+}
+.CALEXT #calext_month .calendarMonth .weekday_6 .header .title {
+    color:#99F;
+}
+
+.CALEXT #calext_month .calendarMonth .weekday_7 {
+    background:rgba(153,51,51,0.2);
+    color:#F99;
+}
+.CALEXT #calext_month .calendarMonth .weekday_7 .header .title {
+    color:#F99;
+}
+
+.CALEXT #calext_month .thisweek {
+    background-color : rgba(255,255,127, 0.1);
+}
+
+.CALEXT #calext_month .thisweek th {
+    color:#FF9;
+    font-weight:bold;
+}
+
+.CALEXT #calext_month .thismonth {
+    background-color : rgba(127,127,127, 0.1);
+}
+
+.CALEXT #calext_month .lastmonth,
+.CALEXT #calext_month .nextmonth {
+}
+
+.CALEXT #calext_month .today {
+    background-color : rgba(255,255,255, 0.9);
+}
+
+.CALEXT .weeks th{
+    width:100px;
+    font-weight:normal;
+    font-size:50%;
+}
+
+.CALEXT .weeks th {
+    width:100px;
+}
+.CALEXT #calext_month .eventLocation,
+.CALEXT #calext_month .eventTime {
+    display:none;
+}
+
+.CALEXT #calext_month .event {
+    font-weight:normal;
+    font-size:40%;
+}
+
+.CALEXT #calext_month .event .symbol {
+    order:1;
+    display:block;
+    flex-basis:20px;
+    text-align:center;
+}

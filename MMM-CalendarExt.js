@@ -316,8 +316,11 @@ Module.register("MMM-CalendarExt", {
     },
 
     weeklyClassName: function(md) {
+        var lc = this.cfg.locale;
+        md = md.locale(lc);
+        var now = moment().locale(lc);
         var isNextYear
-            = (moment().format('gggg') !== md.format('gggg')) ? 1 : 0;
+            = (moment(now).format('gggg') !== md.format('gggg')) ? 1 : 0;
         var isLastWeek
             = (md.format('w') == 53) ? 1 : 0;
         var isThisWeek
@@ -587,17 +590,18 @@ Module.register("MMM-CalendarExt", {
 
         for(i=0; i<slots.slot.length; i++) {
             var events = slots.slot[i];
-            var d = moment(slots.slotIndex[i]);
-            var isThisMonth = (moment().format('MM') == moment(d).format('MM')) ? 1 : 0;
+            var d = moment(slots.slotIndex[i]).locale(lc);
+            var now = moment().locale(lc);
+            var isThisMonth = (moment(now).format('MM') == moment(d).format('MM')) ? 1 : 0;
 
             var isLastMonth
-                = (moment(d).startOf('month').isBefore(moment().startOf('month')))
+                = (moment(d).startOf('month').isBefore(moment(now).startOf('month')))
                 ? 1 : 0;
             var isNextMonth
-                = (moment(d).startOf('month').isAfter(moment().startOf('month')))
+                = (moment(d).startOf('month').isAfter(moment(now).startOf('month')))
                 ? 1 : 0;
-            var isThisWeek = (moment().format('w') == moment(d).format('w')) ? 1 : 0;
-            var isToday = (moment().format('MMDD') == moment(d).format('MMDD')) ? 1 : 0;
+            var isThisWeek = (moment(now).format('wo') == moment(d).format('wo')) ? 1 : 0;
+            var isToday = (moment(now).format('MMDD') == moment(d).format('MMDD')) ? 1 : 0;
             if (i % 7 == 0) {
                 var tr = document.createElement('tr');
                 tr.className

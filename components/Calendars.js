@@ -1,5 +1,5 @@
 var Calendar = require('./Calendar.js');
-var urlExists = require("url-exists");
+
 
 
 class Calendars {

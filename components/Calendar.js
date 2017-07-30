@@ -25,7 +25,6 @@ var http = require('http');
 var url = require('url');
 var iCal = require('../vendor/ical.js');
 var moment = require('moment');
-var urlExists = require("url-exists");
 var Pubsub = require('./Pubsub.js');
 var CalendarEvents = require('./CalendarEvents.js');
 

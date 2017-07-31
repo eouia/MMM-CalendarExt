@@ -3,7 +3,7 @@
 //
 
 const SELFNAME = 'calext';
-const VIEWS = ['daily', 'weekly', 'monthly', 'upcoming', 'month'];
+const VIEWS = ['daily', 'weekly', 'monthly', 'upcoming', 'current', 'month'];
 
 
 function Configs() {
@@ -170,7 +170,6 @@ Configs.prototype.mix = function(template, ncfg) {
     return cfg;
 }
 
-
 function Slots() {
     this.slot = [];
 }
@@ -189,6 +188,7 @@ Slots.prototype.resetAllSlots = function() {
 Slots.prototype.getAllSlots = function() {
     return this.slot;
 }
+
 Slots.prototype.prepare = function(mode, cfg, locale) {
     var lc = locale;
     var template = {
@@ -235,9 +235,12 @@ Slots.prototype.prepare = function(mode, cfg, locale) {
         if (i != counts) {
             slot[i] = [];
         }
-        if (mode == 'upcoming' || mode == 'current') {
+        if (mode == 'upcoming') {
             start.add(100, 'year');
+        } else if (mode == 'current'){
+          //same;
         } else {
+
             //daily, weekly, monthly
             start.add(1, template[mode].d);
         }
@@ -347,7 +350,7 @@ RenderHelper.prototype.getMonthDom = function(cfg, slots ,classes) {
                 + ((isNextMonth) ? ' nextmonth' : '')
                 + ((isToday) ? ' today' : '');
 
-            td.appendChild(this.getHeaderDom(this.locale, 'month', cfg, d.valueOf()));
+            td.appendChild(this.getHeaderDom('month', cfg, d.valueOf()));
             var mPeriod = slots.slotIndex[i];
             var mPeriodEnd = slots.slotIndex[i + 1];
             if (typeof events !== 'undefined') {
@@ -404,7 +407,6 @@ RenderHelper.prototype.getSlotDom = function(mode, cfg, slots, classes) {
                     break;
             }
 
-
             slotWrapper.appendChild(
                 this.getHeaderDom(mode, cfg, mPeriod)
             );
@@ -439,6 +441,7 @@ RenderHelper.prototype.getHeaderDom = function(mode, cfg, d) {
     var subtitle = "";
 
     switch(mode) {
+        case "current":
         case "upcoming":
             title = cfg.title;
             subtitle = '';
@@ -529,6 +532,13 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
                     ? "<i class='material-icons md-12'>" +symbol + "</i>"
                     : "<i class='material-icons'>" +symbol + "</i>";
                 symbolWrapper.style.color = event.color;
+            } else if (symbolType == 'em') {
+              symbolWrapper.className
+                = "emoji symbol symbol_" + symbol;
+              symbolWrapper.innerHTML
+                = "<i class='em em-" +symbol + "'></i>";
+              symbolWrapper.style.color = event.color;
+
             } else {
                 symbolWrapper.className
                     = "fa-stack symbol symbol_" + symbol;
@@ -635,11 +645,18 @@ RenderHelper.prototype.eventPeriodString = function(mode, cfg, event) {
     var ed = moment(parseInt(event.endDate)).locale(lc);
     var text = "";
 
-    if (mode == 'upcoming' || mode == 'current') {
+    if (mode == 'upcoming') {
         if(cfg.useRelative) {
-            text = sd.calendar();
+            text = sd.fromNow();
             return text;
         }
+    }
+
+    if (mode == 'current') {
+      if(cfg.useRelative) {
+          text = ed.fromNow();
+          return text;
+      }
     }
 
     var isSameTime
@@ -730,7 +747,6 @@ Render.prototype.drawViews = function(views, cfg, slot, classes=null) {
 
     var viewDom = {}
     var oldDom = null;
-
     var self = this;
     views.forEach(function(mode) {
         viewDom[mode]
@@ -747,7 +763,6 @@ Render.prototype.drawViews = function(views, cfg, slot, classes=null) {
     cfg.show.forEach(function (mode){
         var position = cfg[mode].position;
         var hookDom = RenderHelper.getRegionContainer(position);
-
         var showEmptyView = cfg.showEmptyView;
         var isEmptyView
             = (viewDom[mode].getElementsByClassName('event').length)
@@ -758,9 +773,7 @@ Render.prototype.drawViews = function(views, cfg, slot, classes=null) {
             hookDom.style.display = 'block';
             Render.rollOverflow(mode, cfg[mode]);
         }
-
     });
-
 }
 Render.prototype.rollOverflow = function(mode, cfg) {
     var self = this;
@@ -796,9 +809,9 @@ var Slots = new Slots;
 var Configs = new Configs;
 
 var observerConfig = {
-	attributes: true,
-	childList: true,
-	characterData: true
+  attributes: true,
+  childList: true,
+  characterData: true
 };
 
 Module.register("MMM-CalendarExt", {
@@ -834,8 +847,8 @@ Module.register("MMM-CalendarExt", {
 
     addCalendars: function() {
         for (var c in this.cfg.calendars) {
-			this.addCalendar(this.cfg.calendars[c]);
-		}
+      this.addCalendar(this.cfg.calendars[c]);
+    }
     },
 
     addCalendar: function (calendar, sender = SELFNAME, reqKey = null) {
@@ -848,12 +861,11 @@ Module.register("MMM-CalendarExt", {
                 'reqKey': reqKey
             }
         );
-	},
+  },
 
     getDom: function() {
         if (this.isInit) {
             Render.drawViews(VIEWS, this.cfg, Slots.getAllSlots(), this.data.classes);
-
         }
         var wrapper = null;
         wrapper = document.createElement("div");
@@ -869,9 +881,7 @@ Module.register("MMM-CalendarExt", {
 
         VIEWS.forEach(function(mode) {
             Slots.prepare(mode, self.cfg[mode], locale);
-            //self.slot[param] = self.prepareSlots(param, self.cfg[param]);
         });
-        //var slots = Slots.resetAllSlots();
 
         this.instantEvents = this.instantEvents.filter(function (e) {
             var uid = e.uid.split('@')[0];
@@ -899,14 +909,12 @@ Module.register("MMM-CalendarExt", {
                     }
                 }
             }
-            console.log(">", self.profile, e.title, e.profiles);
             var eStart = moment(parseInt(e.startDate));
             var eEnd = moment(parseInt(e.endDate));
 
             if (oldLimit.isAfter(eEnd)) {
                 //too old events.
             } else {
-
                 eStart = moment(parseInt(e.startDate));
                 eEnd = moment(parseInt(e.endDate));
 
@@ -930,27 +938,31 @@ Module.register("MMM-CalendarExt", {
                     ) {
                         continue;
                     }
-
-
                     for (var i = 0; i < slots.slotIndex.length - 1; i++) {
-                        var start = moment(parseInt(slots.slotIndex[i]));
-                        var end = moment(parseInt(slots.slotIndex[i + 1]));
-
-                        if (eEnd.isSameOrBefore(start) || eStart.isSameOrAfter(end)) {
-                        } else {
-                            if(mode == 'upcoming') {
-                                if(
-                                    self.cfg[mode].counts > slots.slot[i].length
-                                    && eStart.isAfter(start)
-                                ) {
-                                    slots.slot[i].push(e);
-                                } else {
-                                    ;//slot full;
-                                }
-                            } else {
-                                slots.slot[i].push(e);
-                            }
+                      var start = moment(parseInt(slots.slotIndex[i]));
+                      var end = moment(parseInt(slots.slotIndex[i + 1]));
+                      if (mode == 'current') {
+                        if(eEnd.isSameOrAfter(start) && eStart.isSameOrBefore(end)) {
+                          slots.slot[i].push(e);
                         }
+                      } else {
+                        if (eEnd.isSameOrBefore(start) || eStart.isSameOrAfter(end)) {
+                          //do nothing
+                        } else {
+                          if(mode == 'upcoming') {
+                            if(
+                              self.cfg[mode].counts > slots.slot[i].length
+                              && eStart.isAfter(start)
+                            ) {
+                              slots.slot[i].push(e);
+                            } else {
+                              //slot full;
+                            }
+                          } else {
+                            slots.slot[i].push(e);
+                          }
+                        }
+                      }
                     }
                     Slots.setSlot(mode, slots);
                 }
@@ -996,8 +1008,7 @@ Module.register("MMM-CalendarExt", {
             sessionId : sessionId,
             sender : sender.name
         }
-        //없으면 새로 만들고, 있으면 변경, 100개 넘으면 too many.
-        //100개 넘었는가?
+
         if(this.instantEvents.filter(function (e) {
             return e.sender == sender.name;
         }).length >= 100) {
@@ -1031,9 +1042,7 @@ Module.register("MMM-CalendarExt", {
         }
         event.uid = ((event.uid) ? event.uid : sessionId) + '@' + sender.name;
         event.sender = sender.name;
-        //정규화 끝.
 
-        //있나?
         var eArr = this.instantEvents.filter(function (e) {
             return (e.sender == sender.name)
                 && (e.uid == event.uid);
@@ -1109,23 +1118,17 @@ Module.register("MMM-CalendarExt", {
                     if (filter.names.indexOf(e.name) < 0) {
                         return 0;
                     } else {
+                        //in filter
                     }
                 } else {
                     return 0;
                 }
             }
-/*
-            console.log('date', e.title, moment(parseInt(e.startDate)).format('YYMMDD HH:mm:ss'),
-                moment(parseInt(filter.from)).format('YYMMDD HH:mm:ss'),
-                moment(parseInt(filter.to)).format('YYMMDD HH:mm:ss')
-        );
-        */
+
             if (moment(parseInt(e.startDate)).isBefore(moment(parseInt(filter.from)))) {
-                //console.log('too early');
                 return 0;
             }
             if (moment(parseInt(e.startDate)).isAfter(moment(parseInt(filter.to)))) {
-                //console.log('too late');
                 return 0;
             }
 
@@ -1161,9 +1164,6 @@ Module.register("MMM-CalendarExt", {
         }
 
         this.sendNotification('CALEXT_SAYS_ADD_EVENT_RESULT', msg);
-
-
-
     },
 
     changeProfile: function(profile) {
@@ -1219,7 +1219,6 @@ Module.register("MMM-CalendarExt", {
         switch (notification) {
             case 'CALENDAR_MODIFIED':
                 this.events = payload;
-                //this.fetchEvents(payload);
                 this.draw();
                 break;
             case 'REGISTER_CALENDAR_FAIL':
@@ -1247,8 +1246,6 @@ Module.register("MMM-CalendarExt", {
                 }
                 break;
             case 'READY_TO_ADD_CALENDAR':
-//                sendNotification('CALEXT_SAY_BE_READY')
-//                this.addCalendars();
                 break;
         }
     },
@@ -1258,18 +1255,29 @@ Module.register("MMM-CalendarExt", {
         this.cfg = Configs.reset(this.config);
         this.profile = this.cfg.startProfile;
 
-        var cssId = 'googleMaterialDesignIcon';
-        if (!document.getElementById(cssId))
-        {
-            var head  = document.getElementsByTagName('head')[0];
-            var link  = document.createElement('link');
-            link.id   = cssId;
-            link.rel  = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
-            link.media = 'all';
-            head.appendChild(link);
-        }
+        var css = [
+          {
+            id:'googleMaterialDesignIcon',
+            href: 'https://fonts.googleapis.com/icon?family=Material+Icons',
+          },
+          {
+            id:'emojiCss',
+            href: 'https://afeld.github.io/emoji-css/emoji.css'
+          }
+        ];
+        css.forEach(function(c) {
+          if (!document.getElementById(c.id))
+          {
+              var head  = document.getElementsByTagName('head')[0];
+              var link  = document.createElement('link');
+              link.id   = c.id;
+              link.rel  = 'stylesheet';
+              link.type = 'text/css';
+              link.href = c.href;
+              link.media = 'all';
+              head.appendChild(link);
+          }
+        });
 
         this.isInit = 1;
     },
@@ -1308,20 +1316,7 @@ Module.register("MMM-CalendarExt", {
             self.draw();
         }, redrawInterval);
     },
-
-
 });
-
-String.prototype.hashCode = String.prototype.hashCode || function() {
-    var hash = 0, i, chr;
-    if (this.length === 0) return hash;
-    for (i = 0; i < this.length; i++) {
-        chr   = this.charCodeAt(i);
-        hash  = ((hash << 5) - hash) + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return (hash >>> 0);
-};
 
 String.prototype.trunc = String.prototype.trunc || function(n){
     if (n < 10) return this;

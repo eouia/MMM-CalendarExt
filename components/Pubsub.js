@@ -1,9 +1,9 @@
-const EventEmitter = require('events').EventEmitter;
-const Pubsub = new EventEmitter();
+const EventEmitter = require('events').EventEmitter
+const Pubsub = new EventEmitter()
 
-Pubsub.on('uncaughtException', function(err){
-    console.log('EventEmitter exception');
-    console.error(err);
+Pubsub.on('uncaughtException', function (err) {
+  console.log('EventEmitter exception')
+  console.error(err)
 })
 
-module.exports = Pubsub;
+module.exports = Pubsub

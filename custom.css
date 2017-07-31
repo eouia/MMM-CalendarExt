@@ -2,12 +2,24 @@
     color:#000;
 }
 
+.CALEXT .current .event,
 .CALEXT .upcoming .event {
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
 }
+.CALEXT .current .header .title,
+.CALEXT .upcoming .header .title {
+  text-align:inherit;
+}
+
+.CALEXT .current .header .subtitle,
+.CALEXT .upcoming .header .subtitle {
+  display:none;
+}
+
+
 
 .CALEXT .startHere {
     border-top-left-radius: 15px;
@@ -76,7 +88,7 @@
 .CALEXT .header .subtitle {
     font-weight:bold;
     text-align:right;
-    font-size:50%;
+    font-size:70%;
     padding-right:10px;
 }
 
@@ -158,7 +170,7 @@
 
 .CALEXT .events .event {
     text-align:left;
-    font-size:50%;
+    font-size:70%;
     padding:0;
     margin:0;
     font-weight:bold;
@@ -191,14 +203,14 @@
 
 .CALEXT .eventTime {
     text-align:right;
-    font-size:80%;
+    font-size:70%;
     font-weight:normal;
     order:1;
 }
 
 .CALEXT .eventLocation {
     text-align:right;
-    font-size:80%;
+    font-size:70%;
     font-weight:normal;
     order:3;
 }

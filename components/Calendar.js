@@ -212,12 +212,13 @@ class Calendar {
                                 }
                             } else {
                                 endDate = moment(startDate);
-                                ifFulldayEvent = 1;
+                                isFulldayEvent = 1;
                             }
 
                             var et = {
                                 'uid': uid + ':' + i,
-                                'classes': self.config.classes,
+                                'name': self.name,
+                                'profiles': self.config.profiles,
                                 'views': self.config.views,
                                 'color': self.config.color,
                                 'inverseColor': self.config.inverseColor,
@@ -273,7 +274,8 @@ class Calendar {
 
                         var et = {
                             'uid': uid,
-                            'classes': self.config.classes,
+                            'name': self.name,
+                            'profiles': self.config.profiles,
                             'views': self.config.views,
                             'color': self.config.color,
                             'inverseColor': self.config.inverseColor,

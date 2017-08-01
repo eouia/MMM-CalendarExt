@@ -522,6 +522,18 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
                 + ((es.isBetween(ms, me, null, '[)')) ? " startHere" : "")
                 + ((ee.isBetween(ms, me, null, '(]')) ? " endHere" : "");
 
+            for(p in event) {
+              if (event[p]) {
+                if(Array.isArray(event[p])) {
+                  if(event[p].length > 0) {
+                    eventWrapper.dataset[p] = event[p].toString();
+                  }
+                } else {
+                  eventWrapper.dataset[p] = event[p];
+                }
+              }
+            }
+
             var symbolWrapper = document.createElement("span");
 
             if (symbolType == 'md') {

@@ -856,9 +856,11 @@ Module.register("MMM-CalendarExt", {
     this.draw()
   },
 
-  addCalendars: function() {
+  addCalendars: async function() {
+    var self = this
     for (var c in this.CurrentConfigs.cfg.calendars) {
-      this.addCalendar(this.CurrentConfigs.cfg.calendars[c])
+      self.addCalendar(self.CurrentConfigs.cfg.calendars[c])
+      await sleep(3000)
     }
   },
 
@@ -1325,3 +1327,7 @@ Module.register("MMM-CalendarExt", {
     }, redrawInterval)
   },
 })
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}

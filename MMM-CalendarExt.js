@@ -117,7 +117,7 @@ Configs.prototype.mix = function(tmpl, ncfg, includeCalendars=1) {
 
   for(p in cfg.views) {
     var newMixed = this.assignment({}, cfg.viewGlobal, cfg.views[p])
-    if (typeof ncfg.view !== 'undefined') {
+    if (typeof ncfg.views !== 'undefined') {
       newMixed
         = (typeof ncfg.views[p] !== 'undefined')
           ? this.assignment({}, cfg.viewGlobal, cfg.views[p], ncfg.views[p])
@@ -253,6 +253,9 @@ Slots.prototype.prepare = function(mode, cfgMode, locale) {
 }
 Slots.prototype.getAllSlots = function() {
   return this.slot
+}
+Slots.prototype.resetSlots = function() {
+  this.slot=[];
 }
 
 function RenderHelper(locale) {
@@ -695,23 +698,28 @@ function Render(showing=1, classes="") {
 Render.prototype.hide = function() {
   this.showing = 0
   var doms = document.getElementsByClassName('CALEXT module_fake')
-  if(doms.length > 1) {
-    doms.forEach(function(dom) {
-      if(dom) {
-        dom.style.display = 'none'
-      }
-    })
+  if(doms.length > 0) {
+    for(var i=0; i<doms.length; i++) {
+      doms[i].style.display = 'none'
+    }
   }
 }
 Render.prototype.show = function() {
   this.showing = 1
   var doms = document.getElementsByClassName('CALEXT module_fake')
-  if (doms.length > 1) {
-    doms.forEach(function(dom) {
-      if(dom) {
-        dom.style.display = 'block'
-      }
-    })
+  if (doms.length > 0) {
+    for(var i=0; i<doms.length; i++) {
+      doms[i].style.display = 'none'
+    }
+  }
+}
+Render.prototype.eraseAllViews = function() {
+  var doms = document.getElementsByClassName('CALEXT module_fake')
+  if (doms.length > 0) {
+    for(var i=0; i<doms.length; i++) {
+      doms[i].outerHTML = ""
+      delete doms[i]
+    }
   }
 }
 Render.prototype.drawViews = function(views, cfg, slot, classes=null) {
@@ -823,6 +831,12 @@ Module.register("MMM-CalendarExt", {
     for (var c in this.CurrentConfigs.cfg.calendars) {
       this.addCalendar(this.CurrentConfigs.cfg.calendars[c])
     }
+  },
+
+  resetCalendars: function() {
+    this.events=[];
+    Slots.resetSlots();
+    this.sendSocketNotification("RESET_CALENDARS", this.CurrentConfigs.cfg)
   },
 
   addCalendar: function (calendar, sender = SELFNAME, reqKey = null) {
@@ -1153,15 +1167,6 @@ Module.register("MMM-CalendarExt", {
     this.sendNotification('CALEXT_SAYS_ADD_EVENT_RESULT', msg)
   },
 
-  changeProfile: function(profile) {
-    this.profile = profile
-
-    //TODO change Configs by Profile
-
-    this.draw()
-
-  },
-
   notificationReceived: function(notification, payload, sender) {
     var sessionId = moment().valueOf()
     if (typeof payload !== 'undefined') {
@@ -1173,13 +1178,12 @@ Module.register("MMM-CalendarExt", {
     switch (notification) {
       case 'DOM_OBJECTS_CREATED':
         this.initAfterLoading()
-        this.addCalendars()
-        this.draw()
         break
       case 'CURRENT_PROFILE':
-        this.changeProfile(payload)
+        this.initAfterLoading(payload)
         break
       case 'CALEXT_ADD_EVENT':
+        console.log('event adding!!')
         if(typeof payload.event !== 'undefined') {
           this.addInstantEvent(payload.event, sender.name, sessionId)
         }
@@ -1194,15 +1198,6 @@ Module.register("MMM-CalendarExt", {
           this.saySchedule(payload.filter, sender.name, sessionId)
         }
         break
-      case 'CALEXT_MODIFY_CONFIG':
-        break
-      case 'CALEXT_SET_CONFIG':
-        break
-      case 'CALEXT_RESET_CONFIG':
-        this.start()
-        this.initAfterLoading()
-        this.draw()
-        break
     }
   },
 
@@ -1212,39 +1207,36 @@ Module.register("MMM-CalendarExt", {
         this.events = payload
         this.draw()
         break
-      case 'REGISTER_CALENDAR_FAIL':
-        if (payload.sender !== SELFNAME) {
-          sendNotification(
-            'CALEXT_SAY_REGISTER_CALENDAR_FAIL',
-            {
-              'message': payload.msg,
-              'sender': payload.sender,
-              'reqKey': payload.reqKey
-            }
-          )
-        }
-        break
-      case 'REGISTER_CALENDAR_SUCCESS':
-        if (payload.sender !== SELFNAME) {
-          sendNotification(
-            'CALEXT_SAY_REGISTER_CALENDAR_SUCCESS',
-            {
-              'uid': payload.uid,
-              'sender': payload.sender,
-              'reqKey': payload.reqKey
-            }
-          )
-        }
-        break
       case 'READY_TO_ADD_CALENDAR':
-        break
-    }
+        this.addCalendars()
+        this.draw()
+        break;
+          }
   },
 
-  initAfterLoading() {
+  initAfterLoading(profile=null) {
     var self = this
     this.CurrentConfigs = new Configs().make(this.config)
-    this.profile = this.CurrentConfigs.cfg.system.startProfile
+    //if(profile == 'User2') debugger;
+    if(!profile) {
+      this.profile = this.CurrentConfigs.cfg.system.startProfile
+    } else {
+      this.profile = profile
+    }
+    if (this.CurrentConfigs.cfg.system.useProfileConfig) {
+      if (typeof this.config.profileConfig !== 'undefined') {
+        if (typeof this.config.profileConfig[this.profile] !== 'undefined') {
+          this.CurrentConfigs
+            = new Configs().make(this.config.profileConfig[this.profile])
+        }
+      }
+    }
+
+
+    Render.eraseAllViews()
+    this.events = []
+    Slots.resetSlots()
+    this.resetCalendars()
 
     var css = [
       {
@@ -1271,6 +1263,7 @@ Module.register("MMM-CalendarExt", {
     })
 
     this.isInit = 1
+
   },
 
   draw: function() {

@@ -1,4 +1,6 @@
 var Calendar = require('./Calendar.js')
+var Pubsub = require('./Pubsub.js')
+
 class Calendars {
   constructor () {
     this.calendars = []
@@ -22,6 +24,13 @@ class Calendars {
     }
     return
     (typeof this.calendar[calendar.uid] !== 'undefined') ? 1 : 0
+  }
+
+  resetCalendars() {
+    console.log("Calendars.js::resetCalendars()")
+    this.calendars = []
+    console.log('resetted???')
+    Pubsub.emit('ALL_CALENDARS_RESET')
   }
 
   registerCalendar (calConfig, sender, autoStart = 0) {

@@ -361,12 +361,17 @@ class Calendar {
         return this.events.getAllEvents();
     }
 
+    suicide() {
+      this.events = null;
+      
+    }
+
     activate () {
-        clearInterval(this.timer);
-        var self = this;
-        this.timer = setInterval(function() {
-            self.fetch();
-        }, this.config.interval);
+      clearInterval(this.timer);
+      var self = this;
+      this.timer = setInterval(function() {
+          self.fetch();
+      }, this.config.interval);
     }
 
     deactivate () {

@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const validUrl = require('valid-url')
+const Pubsub = require('./components/Pubsub.js')
 // const Fetcher = require("./fetcher.js");
 
 var Calendars = require('./components/Calendars.js')
@@ -13,10 +14,9 @@ module.exports = NodeHelper.create({
   start: function () {
     this.events = []
     this.calendars = new Calendars()
-    this.Pubsub = require('./components/Pubsub.js')
 
     var self = this
-    this.Pubsub.on('CALENDAR_MODIFIED', function () {
+    Pubsub.on('CALENDAR_MODIFIED', function () {
       var eventsArray = self.calendars.getAllEvents()
 
       eventsArray.sort(function (a, b) {
@@ -24,6 +24,11 @@ module.exports = NodeHelper.create({
       })
       self.sendSocketNotification('CALENDAR_MODIFIED', eventsArray)
     }, self)
+
+    Pubsub.on('ALL_CALENDARS_RESET', function() {
+      console.log('Reset!!')
+      self.sendSocketNotification('READY_TO_ADD_CALENDAR')
+    })
   },
 
   socketNotificationReceived: function (noti, payload) {
@@ -32,10 +37,16 @@ module.exports = NodeHelper.create({
       case 'ADD_CALENDAR':
         this.cmd_ADD_CALENDAR(payload.calendar, payload.sender, payload.reqKey)
         break
+      case 'RESET_CALENDARS':
+        this.cmd_RESET_CALENDARS()
     }
   },
 
   cmd_ADD_CALENDAR: function (calConfig, sender, reqKey = null) {
     this.calendars.registerCalendar(calConfig, sender, 1)
+  },
+  cmd_RESET_CALENDARS: function() {
+    console.log("cmd_RESET_CALENDARS");
+    this.calendars.resetCalendars()
   }
 })

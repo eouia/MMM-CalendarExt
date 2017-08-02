@@ -137,6 +137,18 @@
     */
 }
 
+
+.CALEXT .monthTitle {
+  display:block;
+  width:100%;
+  text-align:right;
+  font-weight:bold;
+  color: #FFF;
+  padding-right:10%;
+  font-size:150%;
+  line-height:150%;
+}
+
 .CALEXT .events {
     list-style:none;
     padding:0;
@@ -170,7 +182,7 @@
 
 .CALEXT .events .event {
     text-align:left;
-    font-size:70%;
+    font-size:60%;
     padding:0;
     margin:0;
     font-weight:bold;
@@ -203,16 +215,21 @@
 
 .CALEXT .eventTime {
     text-align:right;
-    font-size:70%;
+    font-size:80%;
     font-weight:normal;
     order:1;
 }
 
 .CALEXT .eventLocation {
     text-align:right;
-    font-size:70%;
+    font-size:80%;
     font-weight:normal;
-    order:3;
+    order:4;
+}
+
+.CALEXT .eventDescription {
+  order:3;
+  display:none;
 }
 
 .CALEXT .eventContent {

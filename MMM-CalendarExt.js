@@ -24,18 +24,21 @@ function Configs() {
     },
     views: {
       daily: {
+        direction: 'row',
         counts: 5,
         titleFormat: "D",
         overTitleFormat: "MMM D",
         subtitleFormat: "ddd",
       },
       weekly: {
+        direction: 'row',
         counts: 4,
         titleFormat: "wo",
         overTitleFormat: "gggg w Week",
         subtitleFormat: "MMM Do",
       },
       monthly: {
+        direction: 'row',
         counts: 3,
         titleFormat: "MMMM",
         overTitleFormat: "YYYY MMM",
@@ -62,8 +65,8 @@ function Configs() {
       }
     },
     viewGlobal: {
-      direction: 'row',
       position: 'bottom_bar',
+      positionOrder: -1,
       overflowRolling: 0,
       overflowHeight: 100,
       overflowDuration: 2,
@@ -71,8 +74,6 @@ function Configs() {
       dateFormat: "MMM Do",
       fullDayEventDateFormat: "MMM Do",
       ellipsis: 0,
-      showTime: 1,
-      showLocation: 1
     },
     calendarDefault: {
       name: null,
@@ -223,6 +224,7 @@ Slots.prototype.prepare = function(mode, cfgMode, locale) {
     start = today.startOf('month').weekday(0).startOf('day')
   }
 
+  start.locale(lc)
   for (i = 0; i <= counts; i++) {
     if (mode == 'upcoming' || mode == 'current') {
       slotIndex.push(start.valueOf())
@@ -276,6 +278,12 @@ RenderHelper.prototype.getMonthDom = function(cfgMonth, slots ,classes) {
   var wrapper = document.createElement("div")
   wrapper.id = SELFNAME + '_month'
   wrapper.className = "wrapper month"
+  var monthTitleWrapper = document.createElement("div")
+  monthTitleWrapper.className = "monthTitle month_" + moment().format('M')
+  monthTitleWrapper.innerHTML
+    = moment().startOf('month').format(cfg.monthTitleFormat)
+
+  wrapper.appendChild(monthTitleWrapper)
 
   if (typeof slots !== 'undefined') {
     for(var i=0; i<7; i++) {
@@ -363,6 +371,8 @@ RenderHelper.prototype.getMonthDom = function(cfgMonth, slots ,classes) {
     wrapper.appendChild(table)
   }
 
+
+
   var container = document.createElement("div")
   container.className = "CALEXT module module_fake " + classes
   container.id = 'CALEXT_CONTAINER_month'
@@ -402,7 +412,6 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgMode, slots, classes) {
           slotWrapper.className += this.dailyClassName(mPeriod)
           break
       }
-
       slotWrapper.appendChild(
         this.getHeaderDom(mode, cfg, mPeriod)
       )
@@ -538,6 +547,13 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
             ? "<i class='material-icons md-12'>" +symbol + "</i>"
             : "<i class='material-icons'>" +symbol + "</i>"
         symbolWrapper.style.color = event.color
+      } else if (symbolType == 'fi') {
+        symbolWrapper.className
+          = "flag-icon-css symbol symbol_" + symbol
+        symbolWrapper.innerHTML
+          = "<span class='flag-icon flag-icon-"
+          + symbol
+          + "'></span>"
       } else if (symbolType == 'em') {
         symbolWrapper.className
           = "emoji symbol symbol_" + symbol
@@ -565,6 +581,9 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
       var eventLocationWrapper = document.createElement("div")
       eventLocationWrapper.className = "eventLocation"
       eventLocationWrapper.innerHTML = event.location ? event.location : ""
+      var eventDescriptionWrapper = document.createElement("div")
+      eventDescriptionWrapper.className = "eventDescription"
+      eventDescriptionWrapper.innerHTML = event.description ? event.description : ""
 
       if (event.fullDayEvent) {
         eventWrapper.className += " fulldayevent"
@@ -576,15 +595,12 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
       eventTimeWrapper.innerHTML
         = self.eventPeriodString(mode, cfg, event)
 
-      if (cfg.showTime) {
-        eventContainerWrapper.appendChild(eventTimeWrapper)
-      }
 
+      eventContainerWrapper.appendChild(eventTimeWrapper)
       eventContainerWrapper.appendChild(eventContentWrapper)
+      eventContainerWrapper.appendChild(eventDescriptionWrapper)
+      eventContainerWrapper.appendChild(eventLocationWrapper)
 
-      if (cfg.showLocation) {
-        eventContainerWrapper.appendChild(eventLocationWrapper)
-      }
 
       eventWrapper.appendChild(symbolWrapper)
       eventWrapper.appendChild(eventContainerWrapper)
@@ -751,7 +767,20 @@ Render.prototype.drawViews = function(views, cfg, slot, classes=null) {
       = (viewDom[mode].getElementsByClassName('event').length) ? 0 : 1
 
     if (!(!showEmptyView && isEmptyView)) {
-      hookDom.appendChild(viewDom[mode])
+
+      var order = cfg.views[mode].positionOrder;
+      var children = hookDom.children;
+      if (order == -1) {
+        hookDom.appendChild(viewDom[mode])
+      } else if(order >= 0 && order < children.length) {
+        hookDom.insertBefore(viewDom[mode], children[order])
+      } else {
+        hoodDom.appendChild(viewDom[mode])
+      }
+
+
+
+
       hookDom.style.display = 'block'
       Render.rollOverflow(mode, cfg.views[mode])
     }
@@ -1177,13 +1206,13 @@ Module.register("MMM-CalendarExt", {
 
     switch (notification) {
       case 'DOM_OBJECTS_CREATED':
+        this.loadCSS()
         this.initAfterLoading()
         break
       case 'CURRENT_PROFILE':
         this.initAfterLoading(payload)
         break
       case 'CALEXT_ADD_EVENT':
-        console.log('event adding!!')
         if(typeof payload.event !== 'undefined') {
           this.addInstantEvent(payload.event, sender.name, sessionId)
         }
@@ -1238,6 +1267,12 @@ Module.register("MMM-CalendarExt", {
     Slots.resetSlots()
     this.resetCalendars()
 
+
+
+    this.isInit = 1
+
+  },
+  loadCSS: function() {
     var css = [
       {
         id:'googleMaterialDesignIcon',
@@ -1246,6 +1281,10 @@ Module.register("MMM-CalendarExt", {
       {
         id:'emojiCss',
         href: 'https://afeld.github.io/emoji-css/emoji.css'
+      },
+      {
+        id:'flagCSS',
+        href: 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/2.8.0/css/flag-icon.min.css'
       }
     ]
     css.forEach(function(c) {
@@ -1261,9 +1300,6 @@ Module.register("MMM-CalendarExt", {
         head.appendChild(link)
       }
     })
-
-    this.isInit = 1
-
   },
 
   draw: function() {

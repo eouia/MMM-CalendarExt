@@ -26,9 +26,8 @@ Calendars.prototype.has = function(calendar) {
 }
 
 Calendars.prototype.resetCalendars = function() {
-  console.log("Calendars.js::resetCalendars()")
   this.calendars = []
-  console.log('resetted???')
+  console.log('RESETTED???', this.calendars.length)
   Pubsub.emit('ALL_CALENDARS_RESET')
 }
 
@@ -41,5 +40,6 @@ Calendars.prototype.registerCalendar = function(calConfig, sender, autoStart = 0
   this.calendars[calendar.uid] = calendar
   return calendar.uid
 }
+
 
 exports = module.exports = Calendars

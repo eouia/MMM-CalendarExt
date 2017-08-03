@@ -3,7 +3,7 @@
 //
 String.prototype.trunc = String.prototype.trunc || function(n){
   if (n < 10) return this
-  return (this.length > n) ? this.substr(0, n - 1) + '&hellip' : this
+  return (this.length > n) ? this.substr(0, n - 1) + '&hellip;' : this
 }
 
 
@@ -34,7 +34,7 @@ function Configs() {
         direction: 'row',
         counts: 4,
         titleFormat: "wo",
-        overTitleFormat: "gggg w Week",
+        overTitleFormat: "gggg wo",
         subtitleFormat: "MMM Do",
       },
       monthly: {
@@ -46,12 +46,12 @@ function Configs() {
       },
       upcoming: {
         title: 'Upcoming',
-        limit: 20,
+        limit: 10,
         useRelative: 1
       },
       current: {
         title: 'Current',
-        limit: 20,
+        limit: 10,
         useRelative: 1
       },
       month: {
@@ -79,7 +79,7 @@ function Configs() {
       name: null,
       profiles: [],
       views: [],
-      color: "#CCC",
+      color: "#999",
       inverseColor: "#FFF",
       symbol: "calendar",
       replace: [],
@@ -126,8 +126,16 @@ Configs.prototype.mix = function(tmpl, ncfg, includeCalendars=1) {
     }
     cfg.views[p] = newMixed //broaden with viewGlobal
   }
-  if (!includeCalendars || typeof ncfg.calendars == 'undefined') return cfg
 
+  if (ncfg.profileConfig !== 'undefined') {
+    cfg.profileConfig = this.assignment({}, ncfg.profileConfig)
+  }
+
+
+  if (!includeCalendars || typeof ncfg.calendars == 'undefined') {
+    cfg.calendars = tmpl.calendars
+    return cfg
+  }
   cfg.calendars = []
   if(ncfg.calendars.length > 0) {
     var self = this
@@ -144,7 +152,7 @@ Configs.prototype.make = function(newCfg) {
   return this;
 }
 Configs.prototype.modify = function(newCfg) {
-  this.cfg = this.mix(this.cfg, newCfg)
+  this.cfg = this.mix(this.cfg, newCfg, 0)
   return this;
 }
 Configs.prototype.assignment = function (result) {
@@ -213,18 +221,17 @@ Slots.prototype.prepare = function(mode, cfgMode, locale) {
   if (typeof cfg.counts !== 'undefined') {
     var counts = cfg.counts
   }
-  var start = moment()
+  var start = moment().locale(lc)
 
   if (mode == 'upcoming' || mode == 'current') counts = 1
   if (mode == 'month') {
     var today = moment().locale(lc)
-    var lastMonSlots = today.startOf('month').weekday()
-    var thisMonSlots = today.daysInMonth()
+    var lastMonSlots = moment(today).startOf('month').weekday()
+    var thisMonSlots = moment(today).daysInMonth()
     counts = Math.ceil((lastMonSlots + thisMonSlots) / 7) * 7
-    start = today.startOf('month').weekday(0).startOf('day')
+    start = moment(today).startOf('month').weekday(0).startOf('day')
   }
 
-  start.locale(lc)
   for (i = 0; i <= counts; i++) {
     if (mode == 'upcoming' || mode == 'current') {
       slotIndex.push(start.valueOf())
@@ -539,6 +546,7 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
 
       var symbolWrapper = document.createElement("span")
 
+      symbolWrapper.style.color = color
       if (symbolType == 'md') {
         symbolWrapper.className
           = "google-material-design symbol symbol_" + symbol
@@ -546,7 +554,12 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
           = (mode == 'month')
             ? "<i class='material-icons md-12'>" +symbol + "</i>"
             : "<i class='material-icons'>" +symbol + "</i>"
-        symbolWrapper.style.color = event.color
+        symbolWrapper.style.color = event.inverseColor
+        symbolWrapper.style.backgroundColor = event.color
+        if (event.fullDayEvent) {
+          symbolWrapper.style.backgroundColor = event.inverseColor
+          symbolWrapper.style.color = event.color
+        }
       } else if (symbolType == 'fi') {
         symbolWrapper.className
           = "flag-icon-css symbol symbol_" + symbol
@@ -559,17 +572,21 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
           = "emoji symbol symbol_" + symbol
         symbolWrapper.innerHTML
           = "<i class='em em-" +symbol + "'></i>"
-        symbolWrapper.style.color = event.color
       } else {
         symbolWrapper.className
           = "fa-stack symbol symbol_" + symbol
         symbolWrapper.innerHTML
-          = "<i class='fa fa-circle fa-stack-2x'></i>"
-          + "<i class='fa fa-stack-1x fa-inverse fa-"
+          = "<i class='fa  fa-"
           + symbol
           + "'></i>"
-        symbolWrapper.style.color = event.inverseColor
+          symbolWrapper.style.color = event.color
+          symbolWrapper.style.backgroundColor = event.inverseColor
+          if (event.fullDayEvent) {
+            symbolWrapper.style.backgroundColor = event.inverseColor
+            symbolWrapper.style.color = event.color
+          }
       }
+
 
       var eventContainerWrapper = document.createElement("div")
       eventContainerWrapper.className = "eventContainer"
@@ -577,6 +594,7 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
       eventTimeWrapper.className = "eventTime"
       var eventContentWrapper = document.createElement("div")
       eventContentWrapper.className = "eventContent"
+      //eventContentWrapper.style.color = color
       eventContentWrapper.innerHTML = (event.title).trunc(cfg.ellipsis)
       var eventLocationWrapper = document.createElement("div")
       eventLocationWrapper.className = "eventLocation"
@@ -585,10 +603,13 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
       eventDescriptionWrapper.className = "eventDescription"
       eventDescriptionWrapper.innerHTML = event.description ? event.description : ""
 
+
+      eventContainerWrapper.style.color = color
+
       if (event.fullDayEvent) {
         eventWrapper.className += " fulldayevent"
         eventWrapper.style.backgroundColor = color
-        symbolWrapper.style.color = event.inverseColor
+        eventContainerWrapper.style.color = event.inverseColor
         eventWrapper.style.color = event.inverseColor
       }
 
@@ -600,6 +621,7 @@ RenderHelper.prototype.getEventsDom = function(mode, cfg, events, s, e) {
       eventContainerWrapper.appendChild(eventContentWrapper)
       eventContainerWrapper.appendChild(eventDescriptionWrapper)
       eventContainerWrapper.appendChild(eventLocationWrapper)
+
 
 
       eventWrapper.appendChild(symbolWrapper)
@@ -775,7 +797,7 @@ Render.prototype.drawViews = function(views, cfg, slot, classes=null) {
       } else if(order >= 0 && order < children.length) {
         hookDom.insertBefore(viewDom[mode], children[order])
       } else {
-        hoodDom.appendChild(viewDom[mode])
+        hookDom.appendChild(viewDom[mode])
       }
 
 
@@ -790,10 +812,11 @@ Render.prototype.setClasses = function(classes) {
   this.classes = classes
 }
 Render.prototype.rollOverflow = function(mode, cfg) {
+  /*
   if (cfg.overflowRolling !== 1) {
     return 0
   }
-
+  */
   var self = this
   var height = cfg.overflowHeight
   var dom = document.getElementById('CALEXT_CONTAINER_' + mode)
@@ -802,9 +825,10 @@ Render.prototype.rollOverflow = function(mode, cfg) {
   if (typeof eventBoards === 'undefined' || eventBoards == null) return 0
   var nodes = [].slice.call(eventBoards)
   nodes.forEach(function(node){
-    if (height < node.clientHeight) {
+    if (height < node.clientHeight  && height !== 0) {
       node.className = "eventsBoard overflowed"
       node.style.height = height + "px"
+      node.style.overflow = 'hiddne'
       if (cfg.overflowRolling !== 1) {
         return 0
       }
@@ -816,6 +840,7 @@ Render.prototype.rollOverflow = function(mode, cfg) {
       })
     } else {
         node.className = "eventsBoard"
+        node.style.overflow = 'auto'
     }
   })
 }
@@ -858,9 +883,10 @@ Module.register("MMM-CalendarExt", {
 
   addCalendars: async function() {
     var self = this
+    console.log("Do you have calendars?", this.CurrentConfigs)
     for (var c in this.CurrentConfigs.cfg.calendars) {
       self.addCalendar(self.CurrentConfigs.cfg.calendars[c])
-      await sleep(3000)
+      await sleep(500)
     }
   },
 
@@ -871,6 +897,7 @@ Module.register("MMM-CalendarExt", {
   },
 
   addCalendar: function (calendar, sender = SELFNAME, reqKey = null) {
+    console.log("I'll add calendar", calendar.url)
     calendar.sender = sender
     this.sendSocketNotification(
       "ADD_CALENDAR",
@@ -901,7 +928,7 @@ Module.register("MMM-CalendarExt", {
   fetchEvents: function(pl=null) {
     var curCfg = this.CurrentConfigs.cfg
     var locale = curCfg.system.locale
-    var oldLimit = moment().startOf('month').startOf('week').startOf('day')
+    var oldLimit = moment().locale(locale).add(-1,'days').endOf('day')
 
     var self = this
     curCfg.system.show.forEach(function(mode) {
@@ -916,7 +943,7 @@ Module.register("MMM-CalendarExt", {
         sessionId : null,
         sender: e.sender,
       }
-      var valid = moment(e.endDate).isAfter(oldLimit)
+      var valid = moment(e.endDate).locale(locale).isAfter(oldLimit)
       if(!valid) {
         msg.message = e.uid
         self.sendNotification('CALEXT_SAYS_USELESS_EVENT_REMOVED', msg)
@@ -934,14 +961,12 @@ Module.register("MMM-CalendarExt", {
           }
         }
       }
-      var eStart = moment(parseInt(e.startDate))
-      var eEnd = moment(parseInt(e.endDate))
-      if (oldLimit.isAfter(eEnd)) {
-          //too old events.
-      } else {
-        eStart = moment(parseInt(e.startDate))
-        eEnd = moment(parseInt(e.endDate))
 
+      var eStart = moment(parseInt(e.startDate)).locale(locale)
+      var eEnd = moment(parseInt(e.endDate)).locale(locale)
+      if (oldLimit.isAfter(eEnd)) {
+          //too old events. //but do nothing;
+      } else {
         if (curCfg.system.fullDayEventLocalize == 1) {
           if (e.fullDayEvent == 1) {
             var timegap = e.endDate - e.startDate - 1
@@ -950,49 +975,49 @@ Module.register("MMM-CalendarExt", {
           }
         }
         for(var p in curCfg.system.show) {
-            var mode = curCfg.system.show[p]
-            if((e.views.length !== 0) && (e.views.indexOf(mode) < 0)) {
-              continue
-            }
-            var slots = Slots.getSlot(mode)
+          var mode = curCfg.system.show[p]
 
-            if (
-              (mode == 'upcoming' || mode == 'current')
-              && slots.slot.length >= curCfg.views[mode].limit
-            ) {
-              continue
-            }
-            for (var i = 0; i < slots.slotIndex.length - 1; i++) {
-              var start = moment(parseInt(slots.slotIndex[i]))
-              var end = moment(parseInt(slots.slotIndex[i + 1]))
-              if (mode == 'current') {
-                if (
-                  eEnd.isSameOrAfter(start)
-                  && eStart.isSameOrBefore(end)
-                  && curCfg.views[mode].limit > slots.slot[i].length
-                ) {
-                  slots.slot[i].push(e)
-                }
-              } else { //another mode
-                if (eEnd.isSameOrBefore(start) || eStart.isSameOrAfter(end)) {
-                  //do nothing; out of date range
-                } else {
-                  if(mode == 'upcoming') {
-                    if(
-                      curCfg.views[mode].limit > slots.slot[i].length
-                      && eStart.isAfter(start)
-                    ) {
-                      slots.slot[i].push(e)
-                    } else {
-                      //slot full
-                    }
-                  } else {
+          if((e.views.length !== 0) && (e.views.indexOf(mode) < 0)) {
+            continue
+          }
+          var slots = Slots.getSlot(mode)
+          if (
+            (mode == 'upcoming' || mode == 'current')
+            && slots.slot.length >= curCfg.views[mode].limit
+          ) {
+            continue
+          }
+          for (var i = 0; i < slots.slotIndex.length - 1; i++) {
+            var start = moment(parseInt(slots.slotIndex[i]))
+            var end = moment(parseInt(slots.slotIndex[i + 1]))
+            if (mode == 'current') {
+              if (
+                eEnd.isSameOrAfter(start)
+                && eStart.isSameOrBefore(end)
+                && curCfg.views[mode].limit > slots.slot[i].length
+              ) {
+                slots.slot[i].push(e)
+              }
+            } else { //another mode
+              if (eEnd.isSameOrBefore(start) || eStart.isSameOrAfter(end)) {
+                //do nothing; out of date range
+              } else {
+                if(mode == 'upcoming') {
+                  if(
+                    curCfg.views[mode].limit > slots.slot[i].length
+                    && eStart.isAfter(start)
+                  ) {
                     slots.slot[i].push(e)
+                  } else {
+                    //slot full
                   }
+                } else {
+                  slots.slot[i].push(e)
                 }
               }
             }
-            Slots.setSlot(mode, slots)
+          }
+          Slots.setSlot(mode, slots)
         }
       }
     })
@@ -1022,7 +1047,6 @@ Module.register("MMM-CalendarExt", {
     if (!chkFlag) {
       msg.message = 'EVENT_NOT_REMOVED_UID_FAIL'
       msg.uid = eventUid
-      console.log('FAIL', eventUid)
       this.sendNotification('CALEXT_SAYS_REMOVE_EVENT_RESULT', msg)
     } else {
       this.draw()
@@ -1032,6 +1056,7 @@ Module.register("MMM-CalendarExt", {
   addInstantEvent: function(event, senderName, sessionId) {
     var redraw = 0
     var msg = {
+      uid: null,
       message : "",
       sessionId : sessionId,
       sender : senderName
@@ -1040,7 +1065,6 @@ Module.register("MMM-CalendarExt", {
     if(this.instantEvents.filter(function (e) {
       return e.sender == senderName
     }).length >= 100) {
-      console.log('too many')
       msg.message = 'TOO_MANY_EVENTS'
       this.sendNotification('CALEXT_SAYS_ADD_EVENT_RESULT', msg)
     }
@@ -1050,6 +1074,7 @@ Module.register("MMM-CalendarExt", {
     var eDefault = {
       sender:null,
       uid: null,
+      name: senderName,
       profiles: [],
       views: [],
       color: curCfg.calendarDefault.color,
@@ -1069,8 +1094,11 @@ Module.register("MMM-CalendarExt", {
         event[param] = eDefault[param]
       }
     }
-    event.uid = ((event.uid) ? event.uid : sessionId) + '@' + senderName
+    var tuid = (event.uid) ? event.uid : sessionId
+    msg.uid = tuid
+    event.uid = (tuid + '@' + senderName).toString()
     event.sender = senderName
+
 
     var eArr = this.instantEvents.filter(function (e) {
       return (e.sender == senderName) && (e.uid == event.uid)
@@ -1120,12 +1148,11 @@ Module.register("MMM-CalendarExt", {
 
     for(var param in filterDefault) {
       if (typeof filterOrigin[param] === 'undefined') {
-          filter[param] = filterDefault[param]
+        filter[param] = filterDefault[param]
       } else {
-          filter[param] = filterOrigin[param]
+        filter[param] = filterOrigin[param]
       }
     }
-
     var events = this.events.concat(this.instantEvents)
     var final = events.filter(function(e){
       if (filter.profiles.length > 0) {
@@ -1193,9 +1220,34 @@ Module.register("MMM-CalendarExt", {
       msg.events = cleanedEvents
     } else {
       msg.message = "SCHEDULE_NOTFOUND"
+      msg.events = []
     }
 
-    this.sendNotification('CALEXT_SAYS_ADD_EVENT_RESULT', msg)
+    this.sendNotification('CALEXT_SAYS_SCHEDULE', msg)
+  },
+
+  modifyConfiguration: function(newCfg, senderName, sessionId) {
+    this.CurrentConfigs = this.CurrentConfigs.modify(newCfg)
+    var msg = {
+      sessionId : sessionId,
+      sender : senderName,
+    }
+
+    if (this.CurrentConfigs.cfg.system.useProfileConfig) {
+      if (typeof this.CurrentConfigs.cfg.profileConfig !== 'undefined') {
+        if (typeof this.CurrentConfigs.cfg.profileConfig[this.profile] !== 'undefined') {
+          this.CurrentConfigs
+            = new Configs().make(this.CurrentConfigs.cfg.profileConfig[this.profile])
+        }
+      }
+    }
+
+
+    Render.eraseAllViews()
+    this.events = []
+    Slots.resetSlots()
+    this.resetCalendars()
+    this.sendNotification('CALEXT_SAYS_CONFIG_MODIFIED', msg)
   },
 
   notificationReceived: function(notification, payload, sender) {
@@ -1208,11 +1260,14 @@ Module.register("MMM-CalendarExt", {
 
     switch (notification) {
       case 'DOM_OBJECTS_CREATED':
-        this.loadCSS()
-        this.initAfterLoading()
+        if(typeof sender == 'undefined') {
+          this.loadCSS()
+          this.initAfterLoading()
+        }
         break
       case 'CURRENT_PROFILE':
         this.initAfterLoading(payload)
+        this.sendNotification('CALEXT_SAYS_PROFILE_CHANGED', payload)
         break
       case 'CALEXT_ADD_EVENT':
         if(typeof payload.event !== 'undefined') {
@@ -1229,20 +1284,25 @@ Module.register("MMM-CalendarExt", {
           this.saySchedule(payload.filter, sender.name, sessionId)
         }
         break
+      case 'CALEXT_MODIFY_CONFIG':
+        this.modifyConfiguration(payload.config, sender.name, sessionId)
+        //this.CurrentConfigs.modify(payload)
     }
   },
 
   socketNotificationReceived: function(notification, payload) {
+    console.log('>>>', notification)
     switch (notification) {
       case 'CALENDAR_MODIFIED':
         this.events = payload
         this.draw()
         break
       case 'READY_TO_ADD_CALENDAR':
+        console.log('Why dont you add?')
         this.addCalendars()
         this.draw()
         break;
-          }
+      }
   },
 
   initAfterLoading(profile=null) {
@@ -1255,10 +1315,10 @@ Module.register("MMM-CalendarExt", {
       this.profile = profile
     }
     if (this.CurrentConfigs.cfg.system.useProfileConfig) {
-      if (typeof this.config.profileConfig !== 'undefined') {
-        if (typeof this.config.profileConfig[this.profile] !== 'undefined') {
+      if (typeof this.CurrentConfigs.cfg.profileConfig !== 'undefined') {
+        if (typeof this.CurrentConfigs.cfg.profileConfig[this.profile] !== 'undefined') {
           this.CurrentConfigs
-            = new Configs().make(this.config.profileConfig[this.profile])
+            = new Configs().make(this.CurrentConfigs.cfg.profileConfig[this.profile])
         }
       }
     }
@@ -1268,9 +1328,6 @@ Module.register("MMM-CalendarExt", {
     this.events = []
     Slots.resetSlots()
     this.resetCalendars()
-
-
-
     this.isInit = 1
 
   },
@@ -1285,7 +1342,7 @@ Module.register("MMM-CalendarExt", {
         href: 'https://afeld.github.io/emoji-css/emoji.css'
       },
       {
-        id:'flagCSS',
+        id:'flag-icon-CSS',
         href: 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/2.8.0/css/flag-icon.min.css'
       }
     ]
@@ -1315,13 +1372,13 @@ Module.register("MMM-CalendarExt", {
     clearInterval(this.redrawTimer)
     this.redrawTimer = null
     var redrawInterval = null
+
     if (typeof this.CurrentConfigs.cfg !== 'undefined') {
       redrawInterval = this.CurrentConfigs.cfg.system.redrawInterval
     }
     if (redrawInterval < 60000) {
       redrawInterval = 1*60*1000
     }
-
     this.redrawTimer = setInterval(function() {
       self.draw()
     }, redrawInterval)

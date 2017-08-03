@@ -1,5 +1,5 @@
 .CALEXT .fa-stack-1x {
-    color:#000;
+    /*color:#000;*/
 }
 
 .CALEXT .current .event,
@@ -74,6 +74,10 @@
     flex-basis: auto;
     line-height:100%;
     opacity:1;
+}
+
+.CALEXT .slots .eventsBoard {
+  overflow:hidden;
 }
 
 .CALEXT .header .title {
@@ -195,13 +199,30 @@
     box-sizing: border-box;
 }
 
-.CALEXT .event .symbol {
+.CALEXT .md-12 {
+  font-size: 160%;
+}
+
+.CALEXT .symbol {
     order:1;
     display:block;
     flex-basis:36px;
     text-align:center;
     font-size:80%;
+    border-radius:50%;
+    margin:2px;
+    background-color:#inherit;
 }
+
+.CALEXT .events .symbol.flag_icon-css,
+.CALEXT .events .symbol.emoji {
+  background-color: inherit;
+}
+
+.CALEXT .fulldayevent .symbol {
+  background-color: inherit;
+}
+
 .CALEXT .event .eventContainer {
     text-align:left;
     order:2;
@@ -217,6 +238,7 @@
     text-align:right;
     font-size:80%;
     font-weight:normal;
+    color:#FFF;
     order:1;
 }
 
@@ -224,6 +246,7 @@
     text-align:right;
     font-size:80%;
     font-weight:normal;
+    color:#FFF;
     order:4;
 }
 

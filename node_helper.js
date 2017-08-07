@@ -26,13 +26,11 @@ module.exports = NodeHelper.create({
     }, self)
 
     Pubsub.on('ALL_CALENDARS_RESET', function() {
-      console.log('Emitted!')
       self.sendSocketNotification('READY_TO_ADD_CALENDAR')
     })
   },
 
   socketNotificationReceived: function (noti, payload) {
-    console.log('>', noti)
     switch (noti) {
       case 'ADD_CALENDAR':
         this.cmd_ADD_CALENDAR(payload.calendar, payload.sender, payload.reqKey)

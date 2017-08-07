@@ -33,9 +33,9 @@
     for (var i = 0; i<p.length; i++){
       if (p[i].indexOf('=') > -1){
         var segs = p[i].split('=');
-        
+
         out[segs[0]] = parseValue(segs.slice(1).join('='));
-        
+
       }
     }
     return out || sp
@@ -44,7 +44,7 @@
   var parseValue = function(val){
     if ('TRUE' === val)
       return true;
-    
+
     if ('FALSE' === val)
       return false;
 
@@ -219,7 +219,7 @@
             //scan all high level object in curr and drop all strings
             var key,
                 obj;
-            
+
             for (key in curr) {
                 if(curr.hasOwnProperty(key)) {
                    obj = curr[key];
@@ -228,10 +228,10 @@
                    }
                 }
             }
-            
+
             return curr
         }
-        
+
         var par = stack.pop()
 
         if (curr.uid)
@@ -272,7 +272,7 @@
           name = name.substring(2);
           return (storeParam(name))(val, params, ctx, stack, line);
       }
-      
+
       return storeParam(name.toLowerCase())(val, params, ctx);
     },
 
@@ -289,8 +289,11 @@
           l += lines[i+1].slice(1)
           i += 1
         }
-
+        /* for Outlook problem
         var kv = l.split(":")
+        */
+        kv = l.match(/([^:"]+|"[^"]*")+/g) || [];
+
 
         if (kv.length < 2){
           // Invalid line - must have k&v

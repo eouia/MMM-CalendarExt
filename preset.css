@@ -1,0 +1,168 @@
+/** styles **/
+
+.CALEXT .style1 {
+  background-color:#C33;
+  color:#FFFFFF;
+}
+
+.CALEXT .style2 {
+  background-color:#EEE;
+  color:#C33;
+}
+
+.CALEXT .style2.fulldayevent .eventContainer{
+  color:#C33;
+}
+
+
+.CALEXT .style3 {
+  background-color:#3C3;
+  color:#FFFFFF;
+}
+
+.CALEXT .style4 {
+  background-color:#EEE;
+  color:#3C3;
+}
+
+.CALEXT .style4.fulldayevent .eventContainer{
+  color:#3C3;
+}
+
+.CALEXT .style5 {
+  background-color:#33C;
+  color:#FFFFFF;
+}
+
+.CALEXT .style6 {
+  background-color:#EEE;
+  color:#33C;
+}
+
+.CALEXT .style6.fulldayevent .eventContainer{
+  color:#33C;
+}
+
+.CALEXT .style7 {
+  background-color:#CC3;
+  color:#FFFFFF;
+}
+
+.CALEXT .style8 {
+  background-color:#EEE;
+  color:#CC3;
+}
+
+.CALEXT .style8.fulldayevent .eventContainer{
+  color:#CC3;
+}
+
+.CALEXT .style9 {
+  background-color:#C3C;
+  color:#FFFFFF;
+}
+
+.CALEXT .style10 {
+  background-color:#EEE;
+  color:#C3C;
+}
+
+.CALEXT .style10.fulldayevent .eventContainer{
+  color:#C3C;
+}
+
+.CALEXT .style11 {
+  background-color:#3CC;
+  color:#FFFFFF;
+}
+
+.CALEXT .style12 {
+  background-color:#EEE;
+  color:#3CC;
+}
+
+.CALEXT .style12.fulldayevent .eventContainer{
+  color:#3CC;
+}
+
+.CALEXT .style13 {
+  background-color:#060709;
+  color:#DEA527;
+}
+.CALEXT .style13 .eventContainer{
+  color:#DEA527;
+}
+
+.CALEXT .style14 {
+  background-color:#DEA527;
+  color:#060709;
+}
+.CALEXT .style14 .eventContainer{
+  color:#DEA527;
+}
+
+.CALEXT .style14.fulldayevent .eventContainer{
+  color:#060709;
+}
+.CALEXT .style15 {
+  background-color:#721C47;
+  color:#D1A377;
+}
+.CALEXT .style15 .eventContainer{
+  color:#D1A377;
+}
+
+.CALEXT .style16 {
+  background-color:#D1A377;
+  color:#721C47;
+}
+
+.CALEXT .style16 .eventContainer{
+  color:#D1A377;
+}
+.CALEXT .style16.fulldayevent .eventContainer{
+  color:#721C47;
+}
+
+.CALEXT .style17 {
+  background-color:#2E3268;
+  color:#989479;
+}
+
+.CALEXT .style17 .eventContainer{
+  color:#989479;
+}
+
+.CALEXT .style18 {
+  background-color:#989479;
+  color:#2E3268;
+}
+
+.CALEXT .style18.fulldayevent .eventContainer{
+  color:#2E3268;
+}
+
+.CALEXT .style18 .eventContainer{
+  color:#989479;
+}
+
+.CALEXT .style19 {
+  background-color:#22422D;
+  color:#28B14A;
+}
+.CALEXT .style19 .eventContainer{
+  color:#28B14A;
+}
+
+.CALEXT .style20 {
+  background-color:#28B14A;
+  color:#22422D;
+}
+
+.CALEXT .style20 .eventContainer{
+  color:#28B14A;
+}
+
+.CALEXT .style20.fulldayevent .eventContainer{
+  color:#22422D;
+}

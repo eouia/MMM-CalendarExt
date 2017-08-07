@@ -27,7 +27,6 @@ Calendars.prototype.has = function(calendar) {
 
 Calendars.prototype.resetCalendars = function() {
   this.calendars = []
-  console.log('RESETTED???', this.calendars.length)
   Pubsub.emit('ALL_CALENDARS_RESET')
 }
 

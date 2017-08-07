@@ -10,6 +10,8 @@ String.prototype.hashCode = function() {
 }
 
 var iCal = require('../vendor/ical.js')
+//var iCal = require('ical')
+//var iCal = require('./ical.js')
 var moment = require('moment')
 var Pubsub = require('./Pubsub.js')
 
@@ -31,13 +33,13 @@ function Calendar (calConfig, sender=null, autostart=0) {
     lastServedEvents : null,
     error: null
   }
-
+/*
   if(typeof this.config.replace === 'undefined') {
     this.replace = []
   } else {
     this.replace = this.config.replace
   }
-
+*/
   this.httpUrl = this.config.url.replace("webcal://", "http://")
   this.opts = null
 
@@ -127,26 +129,6 @@ Calendar.prototype.fetch = function() {
         } else if (event.description) {
           title = event.description
         }
-        if (
-          typeof self.replace !== 'undefined'
-          && self.replace.length > 0
-        ) {
-          for(var i=0; i<self.replace.length; i++) {
-            var replace = self.replace[i]
-            if(
-              typeof replace.from !== 'undefined'
-              && typeof replace.to !== 'undefined'
-            ) {
-              var from = replace.from
-              var to = replace.to
-              title = title.replace(new RegExp(from, 'g'), to)
-            } else {
-              //do nothing
-            }
-          }
-        } else {
-            //do nothing
-        }
 
         location = event.location || null
         geo = event.geo || null
@@ -160,10 +142,20 @@ Calendar.prototype.fetch = function() {
             uid = event.uid
         }
 
+
         //RRULE exists? It means recurred.
         if (typeof event.rrule !== 'undefined') {
           //recurring; event.endDate is useless.
-          event.rrule.all(function(date, i) {
+          var dates = event.rrule.between(
+            today.toDate(),
+            future.toDate(),
+            true,
+            function(date, i) {return i < self.config.maxEntries}
+          )
+
+          for(var i in dates) {
+
+            var date = dates[i];
             var dt = moment(date)
             if (dt.isBefore(past) || dt.isAfter(future)) {
               return 0
@@ -174,15 +166,16 @@ Calendar.prototype.fetch = function() {
             if (typeof event.duration !== 'undefined') {
               var duration = moment.duration(event.duration)
               endDate = moment(startDate).add(duration)
-              if(
-                  (startDate.format('HHmmss') == '000000')
-                  && (endDate.format('HHmmss') == '000000')
-              ) {
-                  isFulldayEvent = 1
-              }
             } else {
-              endDate = moment(startDate)
-              isFulldayEvent = 1
+              var duration = event.end - event.start
+              endDate = moment(startDate).add(duration, 'ms')
+              //isFulldayEvent = 1
+            }
+            if(
+                (startDate.format('HHmmss') == '000000')
+                && (endDate.format('HHmmss') == '000000')
+            ) {
+                isFulldayEvent = 1
             }
 
             var et = {
@@ -190,9 +183,8 @@ Calendar.prototype.fetch = function() {
               'name': self.name,
               'profiles': self.config.profiles,
               'views': self.config.views,
-              'color': self.config.color,
-              'inverseColor': self.config.inverseColor,
               'symbol': self.config.symbol,
+              'styleName': self.config.styleName,
               'title': title,
               'description': description,
               'location': location,
@@ -209,7 +201,7 @@ Calendar.prototype.fetch = function() {
             } else {
               events.push(et)
             }
-          }); //iteration of rrule
+          } //iteration of rrule
         //recurred event fetch over
         } else {
           //single
@@ -244,8 +236,7 @@ Calendar.prototype.fetch = function() {
             'name': self.name,
             'profiles': self.config.profiles,
             'views': self.config.views,
-            'color': self.config.color,
-            'inverseColor': self.config.inverseColor,
+            'styleName': self.config.styleName,
             'symbol': self.config.symbol,
             'title': title,
             'description': description,
@@ -352,7 +343,6 @@ Calendar.prototype.suicide = function () {
 }
 
 Calendar.prototype.activate = function () {
-
   clearInterval(this.timer)
   var self = this
   this.timer = setInterval(function() {

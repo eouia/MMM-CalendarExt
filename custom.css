@@ -29,6 +29,7 @@
 
 .CALEXT .endHere,
 .CALEXT .endHere .eventContainer {
+
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
 }
@@ -392,6 +393,7 @@
     display:block;
     flex-basis:20px;
     text-align:center;
+    min-width:20px;
 }
 
 .CALEXT .oneLineEvent {
@@ -416,8 +418,9 @@
     text-align:center;
     font-size:100%;
     align-self:center;
-    padding-left:5px;
+    padding-left:3px;
     padding-right:3px;
+    min-width:32px;
 }
 
 .CALEXT .eventContainer {
@@ -439,6 +442,11 @@
 .CALEXT .events .symbol.flag_icon-css,
 .CALEXT .events .symbol.emoji {
   /*background-color: inherit;*/
+}
+
+
+.CALEXT  #CALEXT_month .events .symbol.emoji {
+  font-size:50%;
 }
 
 .CALEXT .event.fulldayevent .eventContainer {

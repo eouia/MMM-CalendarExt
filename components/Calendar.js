@@ -23,7 +23,7 @@ function Calendar (calConfig, sender=null, autostart=0) {
   this.name = this.config.name
   this.timestamp = moment().format('x')
   this.timer = null
-  this.replace = null
+  //this.replace = null
 
   this.status = {
     state : 'not fetched yet',
@@ -185,6 +185,10 @@ Calendar.prototype.fetch = function() {
               'views': self.config.views,
               'symbol': self.config.symbol,
               'styleName': self.config.styleName,
+              'replaceTitle': self.config.replaceTitle,
+              'classPattern' : self.config.classPattern,
+              'ellipsis': self.config.ellipsis,
+              'oneLineEvent': self.config.oneLineEvent,
               'title': title,
               'description': description,
               'location': location,
@@ -237,7 +241,11 @@ Calendar.prototype.fetch = function() {
             'profiles': self.config.profiles,
             'views': self.config.views,
             'styleName': self.config.styleName,
+            'replaceTitle': self.config.replaceTitle,
+            'classPattern' : self.config.classPattern,
             'symbol': self.config.symbol,
+            'ellipsis': self.config.ellipsis,
+            'oneLineEvent': self.config.oneLineEvent,
             'title': title,
             'description': description,
             'location': location,
@@ -271,7 +279,7 @@ Calendar.prototype.fetch = function() {
       return a.startDate - b.startDate
     })
     self.status.state = 'fetched'
-    self.status.lastFetchedTime = moment().format('x')
+    self.status.lastFetchedTime = moment().format('YY-MM-DD HH:mm:ss')
     self.status.lastFetchedEvents = events.length
     self.status.lastFetchedOldEvents = oldEvents.length
     events = events.slice(0, self.config.maxEntries)

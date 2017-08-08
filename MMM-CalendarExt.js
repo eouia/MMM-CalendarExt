@@ -15,7 +15,7 @@ Module.register("MMM-CalendarExt", {
   CurrentConfigs: {},
 
   getScripts: function () {
-    return ["moment.js", 'Configs.js', 'Slots.js', 'Render.js']
+    return ["moment.js", 'Configs.js', 'Render.js']
   },
 
   getStyles: function () {
@@ -137,12 +137,9 @@ Module.register("MMM-CalendarExt", {
       })
     }
 
+
     eArr.sort(function(a, b) {
-      if (a.fullDayEvent == b.fullDayEvent) {
-        return a.startDate - b.startDate
-      } else {
-        return b.fullDayEvent - a.fullDayEvent
-      }
+      return a - b
     })
 
     return eArr
@@ -457,8 +454,8 @@ Module.register("MMM-CalendarExt", {
   loadCSS: function() {
     var css = [
       {
-        id:'googleMaterialDesignIcon',
-        href: 'https://fonts.googleapis.com/icon?family=Material+Icons',
+        id:'materialDesignIcons',
+        href: 'https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css',
       },
       {
         id:'emojiCss',

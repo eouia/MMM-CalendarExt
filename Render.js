@@ -46,7 +46,7 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
       var th = document.createElement('th')
 
       th.className = 'day_' + moment(s).format('E')
-      th.innerHTML = moment(s).format('dd')
+      th.innerHTML = moment(s).format(cfg.weekdayFormat)
       s.add(1, 'day')
       tr.appendChild(th)
     }
@@ -55,7 +55,7 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
   }
 
 
-
+/** Start Events push to slot **/
 
   var tmpl = {
     monthly: {
@@ -276,7 +276,6 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
     = "event"
     + ((matched & 1) ? " startHere" : "")
     + ((matched & 2) ? " endHere" : "")
-
   for(p in ev) {
     if (ev[p]) {
       if(Array.isArray(ev[p])) {
@@ -292,11 +291,8 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
   var symbolWrapper = document.createElement("div")
   if (symbolType == 'md') {
     symbolWrapper.className
-      = "google-material-design symbol symbol_" + symbol
-    symbolWrapper.innerHTML
-      = (mode == 'month')
-        ? "<i class='material-icons md-12'>" +symbol + "</i>"
-        : "<i class='material-icons'>" +symbol + "</i>"
+      = "material-design-icons symbol symbol_" + symbol
+    symbolWrapper.innerHTML = "<i class='mdi mdi-"+ symbol + "'></i>"
   } else if (symbolType == 'fi') {
     symbolWrapper.className
       = "flag-icon-css symbol symbol_" + symbol
@@ -326,8 +322,18 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
   var eventContentWrapper = document.createElement("div")
   eventContentWrapper.className = "eventContent"
 
-  //eventContentWrapper.style.color = color
-  eventContentWrapper.innerHTML = this.replaceTitle(ev.title, cfg.replacePattern)
+  var textTitle = this.replaceTitle(
+    ((ev.ellipsis !== 0)
+      ? this.replaceTitle(ev.title, ev.replaceTitle).substring(0, ev.ellipsis)
+      : this.replaceTitle(ev.title, ev.replaceTitle)
+    ),
+    cfg.replaceTitle
+  )
+  textTitle = (cfg.ellipsis !== 0) ? textTitle.substring(0, cfg.ellipsis) : textTitle
+
+  eventContentWrapper.innerHTML = textTitle
+
+
   var eventLocationWrapper = document.createElement("div")
   eventLocationWrapper.className = "eventLocation"
   eventLocationWrapper.innerHTML = ev.location ? ev.location : ""
@@ -335,7 +341,9 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
   eventDescriptionWrapper.className = "eventDescription"
   eventDescriptionWrapper.innerHTML = ev.description ? ev.description : ""
 
-  if(cfg.oneLineEvent) {
+  var oneLineEvent = (cfg.oneLineEvent) ? 1 : ((ev.oneLineEvent) ? 1 : 0)
+
+  if (oneLineEvent == 1) {
     eventContentWrapper.className += " oneLineEvent"
     eventTimeWrapper.className += " oneLineEvent"
     eventDescriptionWrapper.className += " oneLineEvent"
@@ -355,9 +363,15 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
   eventContainerWrapper.appendChild(eventDescriptionWrapper)
   eventContainerWrapper.appendChild(eventLocationWrapper)
 
-  if(Array.isArray(cfg.styleNamePattern) && cfg.styleNamePattern.length > 0) {
-    for (var i=0; i<cfg.styleNamePattern.length; i++) {
-      eventWrapper.className += cfg.styleNamePattern[i]
+  if(Array.isArray(ev.classPattern) && ev.classPattern.length > 0) {
+    for (var i=0; i<ev.classPattern.length; i++) {
+      eventWrapper.className += this.patternClassName(ev.title, ev.classPattern[i])
+    }
+  }
+
+  if(Array.isArray(cfg.classPattern) && cfg.classPattern.length > 0) {
+    for (var i=0; i<cfg.classPattern.length; i++) {
+      eventWrapper.className += this.patternClassName(ev.title, cfg.classPattern[i])
     }
   }
 
@@ -388,6 +402,10 @@ RenderHelper.prototype.eventPeriodString = function(cfg, ev) {
       text = ed.fromNow()
       return text
     }
+  }
+
+  if(ed.format('HHmmss') == '000000') {
+    ed.add(-1, 's')
   }
 
   var isSameTime = (ed.format('YYMMDDHHmm') == sd.format('YYMMDDHHmm')) ? 1 : 0
@@ -479,94 +497,132 @@ Render.prototype.drawViews = function(curConfig, events) {
   showViews.forEach(function(mode) {
     var viewConfig = curConfig.getViewConfig(mode)
     viewDom = RH.getSlotDom(mode, viewConfig, events)
+
     var position = viewConfig.position
     var hookDom = RH.getRegionContainer(position)
-    var showEmptyView = curConfig.system.showEmptyView
-    var isEmptyView
-      = (viewDom.getElementsByClassName('event').length) ? 0 : 1
-
-    if (!(!showEmptyView && isEmptyView)) {
-      var order = viewConfig.positionOrder;
-      var children = hookDom.children;
-      if (order == -1) {
-        hookDom.appendChild(viewDom)
-      } else if(order >= 0 && order < children.length) {
-        hookDom.insertBefore(viewDom, children[order])
-      } else {
-        hookDom.appendChild(viewDom)
-      }
-      hookDom.style.display = 'block'
-
+    var order = viewConfig.positionOrder;
+    var children = hookDom.children;
+    if (order == -1) {
+      hookDom.appendChild(viewDom)
+    } else if(order >= 0 && order < children.length) {
+      hookDom.insertBefore(viewDom, children[order])
+    } else {
+      hookDom.appendChild(viewDom)
     }
+    hookDom.style.display = 'block'
   })
 
   var slots = document.querySelectorAll(".CALEXT .slot")
+  var slotArray = []
+  var cfgArray = {}
   if (slots.length > 0) {
-    events.forEach(function(e) {
-      var eStart = moment(parseInt(e.startDate)).locale(locale)
-      var eEnd = moment(parseInt(e.endDate)).locale(locale)
+    var tCfg = {};
+    slots.forEach(function(slot) {
+      var sObj = {}
+      sObj.slot = slot;
+      sObj.container = slot.querySelector('.eventsBoard .events')
+      sObj.mode = slot.dataset.view
+      if (typeof cfgArray[sObj.mode] == 'undefined') {
+        cfgArray[sObj.mode] = curConfig.getViewConfig(sObj.mode)
+      }
+      /*
+      if(cfgArray[sObj.mode].limit !== 0) {
+        if (ct.children.length >= tCfg[tmode].limit) return 0
+      }
+      */
+      sObj.start = slot.dataset.start
+      sObj.end = slot.dataset.end
+      sObj.events = []
+      slotArray.push(sObj)
+    })
+
+    var matchEventSlot = function(mode, eventStart, eventEnd, slotStart, slotEnd) {
+      var eStart = moment(parseInt(eventStart))
+      var eEnd = moment(parseInt(eventEnd))
 
       if (eEnd.format("HHmmss") == '000000') {
         eEnd.add(-1, 's')
       }
-      if (curConfig.system.fullDayEventLocalize == 1) {
-        if (e.fullDayEvent == 1) {
-          eStart.startOf('day')
-          eEnd.endOf('day')
+
+      var sStart = moment(parseInt(slotStart))
+      var sEnd = moment(parseInt(slotEnd))
+
+      var matched = 0
+      if (mode == 'current') {
+        matched = (moment().isBetween(eStart, eEnd)) ? 3 : 0
+      } else if (mode == 'upcoming'){
+        matched = (eStart.isSameOrAfter(moment())) ? 3 : 0
+      } else {
+        var isEventStartHere = eStart.isBetween(sStart, sEnd, null, "[)") ? 1 : 0
+        var isEventEndHere = eEnd.isBetween(sStart, sEnd, null, "(])") ? 2 : 0
+        var isEventBetween = (eStart.isSameOrBefore(sStart) && eEnd.isSameOrAfter(sEnd)) ? 4 : 0
+        matched = isEventStartHere + isEventEndHere + isEventBetween
+      }
+      return matched
+    }
+
+    events.forEach(function(e) {
+      slotArray.forEach(function(sObj) {
+        var matched = matchEventSlot(sObj.mode, e.startDate, e.endDate, sObj.start, sObj.end)
+        if (matched > 0) {
+          sObj.events.push(e)
+        } else {
+          //do nothing
         }
+      })
+    })
+    slotArray.forEach(function(sObj) {
+      var mode = sObj.mode
+      if (mode == 'upcoming') {
+        sObj.events.sort(function(a, b) {
+          return a.startDate - b.startDate
+        })
+      } else {
+        sObj.events.sort(function(a, b) {
+          if (a.fullDayEvent !== b.fullDayEvent) {
+            return b.fullDayEvent - a.fullDayEvent
+          } else {
+            return a.startDate - b.startDate
+          }
+        })
       }
 
-
-
-      var tCfg = {};
-      slots.forEach(function(slot) {
-        var ct = slot.querySelector('.eventsBoard .events')
-        var tmode = slot.dataset.view
-        var childs = ct.children;
-        if (typeof tCfg[tmode] == 'undefined') {
-          tCfg[tmode] = curConfig.getViewConfig(tmode)
-        }
-        if (ct.children.length >= tCfg[tmode].limit) return 0
-
-        var sStart = moment(parseInt(slot.dataset.start)).locale(locale)
-        var sEnd = moment(parseInt(slot.dataset.end)).locale(locale)
-
-        var slotMode = slot.dataset.view
-
-        var matched
-        if (slotMode == 'current') {
-          matched = (moment().locale(locale).isBetween(eStart, eEnd)) ? 3 : 0
-        } else {
-
-          var isEventStartHere = eStart.isBetween(sStart, sEnd, null, "[)") ? 1 : 0
-          var isEventEndHere = eEnd.isBetween(sStart, sEnd, null, "(]") ? 2 : 0
-          var isEventBetween = (eStart.isSameOrBefore(sStart) && eEnd.isSameOrAfter(sEnd)) ? 4 : 0
-          matched = isEventStartHere + isEventEndHere + isEventBetween
-
-        }
+      sObj.events.forEach(function(e) {
+        var matched = matchEventSlot(sObj.mode, e.startDate, e.endDate, sObj.start, sObj.end)
         if (matched > 0) {
-          ct.appendChild(RH.getEventDom(e, tCfg[tmode], matched))
+          if(cfgArray[sObj.mode].limit !== 0) {
+            if (sObj.container.children.length < cfgArray[sObj.mode].limit) {
+              sObj.container.appendChild(RH.getEventDom(e, cfgArray[sObj.mode], matched))
+            }
+          } else {
+            sObj.container.appendChild(RH.getEventDom(e, cfgArray[sObj.mode], matched))
+          }
         }
       })
     })
   }
+  slotArray = [];
+  cfgArray = [];
+
   var self = this
   showViews.forEach(function(mode) {
     var viewConfig = curConfig.getViewConfig(mode)
-    self.rollOverflow(mode, viewConfig)
+    var position = viewConfig.position
+    var targetDom = document.getElementById('CALEXT_CONTAINER_' + mode)
+    var showEmptyView = curConfig.system.showEmptyView
+    var isEmptyView
+      = (targetDom.getElementsByClassName('event').length) ? 0 : 1
+
+    if ((showEmptyView == 0 && isEmptyView == 1)) {
+      //do nothing
+      targetDom.style.display = 'none'
+    } else {
+      targetDom.style.display = 'block'
+      self.rollOverflow(mode, viewConfig)
+    }
   })
 }
 
-
-
-
-
-
-/*
-Render.prototype.setClasses = function(classes) {
-  this.classes = classes
-}
-*/
 Render.prototype.rollOverflow = function(mode, cfg) {
   var self = this
   var height = cfg.overflowHeight
@@ -597,25 +653,34 @@ Render.prototype.rollOverflow = function(mode, cfg) {
 }
 //var Render = new Render
 RenderHelper.prototype.replaceTitle = function(title, rArr) {
-  if(!Array.isArray(rArr)) return title
-  for(var i = 0; i < ArrOfReplace.length; i++) {
+  if(!Array.isArray(rArr) || rArr.length <= 0) return title
+  for(var i = 0; i < rArr.length; i++) {
     var repl = rArr[i]
     if(!Array.isArray(repl) || repl.length < 2) continue;
-    title = title.replace(repl[0].toRegexp(), repl[1])
+    var r = (repl[0] instanceof RegExp) ? repl[0] : repl[0].toRegexp()
+
+    title = title.replace(r, repl[1])
   }
+  return title;
 }
 
 RenderHelper.prototype.patternClassName = function(title, pattern) {
   if(!Array.isArray(pattern || pattern.length < 2)) return ""
-  if(title.match(pattern[0].toRegexp())) return " " + pattern[1]
+  var r = (pattern[0] instanceof RegExp) ? pattern[0] : pattern[0].toRegexp()
+  if(title.match(r)) return " " + pattern[1]
   return ""
 }
 
 String.prototype.toRegexp = function() {
   var lastSlash = this.lastIndexOf("/")
-  var restoredRegex = new RegExp(
-    this.slice(1, lastSlash),
-    this.slice(lastSlash + 1)
-  )
-  return restoredRegex
+  if(lastSlash > 1) {
+    var restoredRegex = new RegExp(
+      this.slice(1, lastSlash),
+      this.slice(lastSlash + 1)
+    )
+    return (restoredRegex) ? restoredRegex : this
+  } else {
+    return this
+  }
+
 }

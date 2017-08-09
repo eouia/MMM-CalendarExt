@@ -75,8 +75,8 @@ var DEFAULT_CONFIG = {
     classPatternWhere: ["title"],
     ellipsis: 0,
     symbol: "",
-    maxEntries:100,
-    maxDays:365,
+    maxEntries:50,
+    maxDays:180,
     interval: 30*60*1000,
     url: null,
     auth: {

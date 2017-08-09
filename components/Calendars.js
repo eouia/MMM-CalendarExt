@@ -38,8 +38,9 @@ Calendars.prototype.registerCalendar = function(calConfig, sender, autoStart = 0
   calendar.sender = sender
   if (this.has(calendar)) {
     // do duplicate register;
+  } else {
+    this.calendars[calendar.uid] = calendar
   }
-  this.calendars[calendar.uid] = calendar
   return calendar.uid
 }
 

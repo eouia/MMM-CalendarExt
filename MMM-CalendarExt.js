@@ -44,7 +44,7 @@ Module.register("MMM-CalendarExt", {
     var self = this
     for (var c in this.CurrentConfigs.calendars) {
       self.addCalendar(self.CurrentConfigs.getCalConfig(c))
-      await sleep(500)
+      await sleep(1000)
     }
   },
 

@@ -71,7 +71,8 @@ function Calendar (calConfig, sender=null, autostart=0) {
     }
   }
 
-  this.uid = (this.sender + this.name + this.httpUrl).hashCode()
+  //this.uid = (this.sender + this.name + this.httpUrl).hashCode()
+  this.uid = this.httpUrl
   this.events = []
   //this.events = new CalendarEvents(this.config.maxEntries, this.uid)
 

@@ -15,6 +15,11 @@ Alternative calendar module for [MagicMirror](https://magicmirror.builders/)
 - Your other module can ask events and get answers.
 - Almost everything customizable with configuration and CSS.
 
+## Install
+```
+cd ~/MagicMirror/modules
+git clone https://github.com/eouia/MMM-CalendarExt.git
+```
 
 ## Configuration
 See the page about [Configuration](https://github.com/eouia/MMM-CalendarExt/wiki/Configuration).

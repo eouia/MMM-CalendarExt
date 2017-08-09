@@ -91,7 +91,7 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
   for(var i = 0; i < counts; i++) {
     if (mode == 'upcoming') {
       slotStart = moment(cur).valueOf()
-      slotEnd = moment(cur).add(100, 'years').valueOf() //TODO I want to remove this constant number, but..
+      slotEnd = moment(cur).add(100, 'years').valueOf() //@TODO I want to remove this constant number, but..
       p = 'days'
     } else if (mode == 'current') {
       slotStart = moment(cur).valueOf()
@@ -263,7 +263,6 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 
 
 RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
-
   var mode = cfg.mode
 
   var eventWrapper = document.createElement("li")
@@ -276,17 +275,11 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
     = "event"
     + ((matched & 1) ? " startHere" : "")
     + ((matched & 2) ? " endHere" : "")
-  for(p in ev) {
-    if (ev[p]) {
-      if(Array.isArray(ev[p])) {
-        if(ev[p].length > 0) {
-          eventWrapper.dataset[p] = ev[p].toString()
-        }
-      } else {
-        eventWrapper.dataset[p] = ev[p]
-      }
-    }
-  }
+  eventWrapper.dataset.title = ev.title
+  eventWrapper.dataset.description = ev.description
+  eventWrapper.dataset.location = ev.location
+  eventWrapper.dataset.startDate = ev.startDate
+  eventWrapper.dataset.endDate = ev.endDate
 
   var symbolWrapper = document.createElement("div")
   if (symbolType == 'md') {
@@ -322,17 +315,24 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
   var eventContentWrapper = document.createElement("div")
   eventContentWrapper.className = "eventContent"
 
-  var textTitle = this.replaceTitle(
-    ((ev.ellipsis !== 0)
-      ? this.replaceTitle(ev.title, ev.replaceTitle).substring(0, ev.ellipsis)
-      : this.replaceTitle(ev.title, ev.replaceTitle)
-    ),
+
+  var textTitle = ev.title
+  var ellipsis = 0
+  if (ev.ellipsis !== 0 && cfg.ellipsis !== 0) {
+    ellipsis = (ev.ellipsis < cfg.ellipsis) ? ev.ellipsis : cfg.ellipsis
+  } else {
+    ellipsis = cfg.ellipsis + ev.ellipsis
+  }
+
+  textTitle = this.replaceTitle(
+    this.replaceTitle(textTitle, ev.replaceTitle),
     cfg.replaceTitle
   )
-  textTitle = (cfg.ellipsis !== 0) ? textTitle.substring(0, cfg.ellipsis) : textTitle
+  if (ellipsis !== 0) {
+    textTitle = textTitle.substring(0, ellipsis)
+  }
 
   eventContentWrapper.innerHTML = textTitle
-
 
   var eventLocationWrapper = document.createElement("div")
   eventLocationWrapper.className = "eventLocation"
@@ -363,17 +363,25 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
   eventContainerWrapper.appendChild(eventDescriptionWrapper)
   eventContainerWrapper.appendChild(eventLocationWrapper)
 
-  if(Array.isArray(ev.classPattern) && ev.classPattern.length > 0) {
-    for (var i=0; i<ev.classPattern.length; i++) {
-      eventWrapper.className += this.patternClassName(ev.title, ev.classPattern[i])
+  var self = this
+  var tObj = [ev, cfg]
+  tObj.forEach(function (obj) {
+    var cpw = obj.classPatternWhere
+    var cp = obj.classPattern
+    if(
+      (Array.isArray(cpw) && cpw.length > 0)
+      && (Array.isArray(cp) && cp.length > 0)
+    ) {
+      cpw.forEach(function (where) {
+        for (var i=0; i<cp.length; i++) {
+          if (tObj == cfg && where == 'title') continue;
+          eventWrapper.className += self.patternClassName(ev[where], cp[i])
+        }
+      })
     }
-  }
+  })
 
-  if(Array.isArray(cfg.classPattern) && cfg.classPattern.length > 0) {
-    for (var i=0; i<cfg.classPattern.length; i++) {
-      eventWrapper.className += this.patternClassName(ev.title, cfg.classPattern[i])
-    }
-  }
+
 
   eventWrapper.className += " " + ev.styleName
 
@@ -452,21 +460,20 @@ function Render(showing=1) {
 Render.prototype.hide = function() {
   this.showing = 0
   var doms = document.getElementsByClassName('CALEXT module_fake')
-  if(doms.length > 0) {
-    for(var i=0; i<doms.length; i++) {
-      doms[i].style.display = 'none'
-    }
+  for(var i=0; i<doms.length; i++) {
+    var dom = doms[i]
+    dom.style.display = 'none'
   }
 }
 Render.prototype.show = function() {
   this.showing = 1
   var doms = document.getElementsByClassName('CALEXT module_fake')
-  if (doms.length > 0) {
-    for(var i=0; i<doms.length; i++) {
-      doms[i].style.display = 'none'
-    }
+  for(var i=0; i<doms.length; i++) {
+    var dom = doms[i]
+    dom.style.display = 'block'
   }
 }
+
 Render.prototype.eraseAllViews = function() {
   var flag = 1
   var doms = document.getElementsByClassName('CALEXT module_fake')
@@ -474,14 +481,11 @@ Render.prototype.eraseAllViews = function() {
   while(doms.length > 0){
     doms[0].parentNode.removeChild(doms[0]);
   }
-
-
-  var doms = document.getElementsByClassName('CALEXT module_fake')
 }
 
 Render.prototype.drawViews = function(curConfig, events) {
-  if (!this.showing) return 0
   this.eraseAllViews()
+
   var self = this
   var locale = curConfig.system.locale
   var views = curConfig.views
@@ -489,11 +493,8 @@ Render.prototype.drawViews = function(curConfig, events) {
 
   var showViews = curConfig.system.show
 
-  //var slots = this.fetchEvents(curConfig, showViews, events, locale)
-
   var viewDom = {}
-  //var oldDom = null
-  var self = this
+
   showViews.forEach(function(mode) {
     var viewConfig = curConfig.getViewConfig(mode)
     viewDom = RH.getSlotDom(mode, viewConfig, events)
@@ -525,11 +526,7 @@ Render.prototype.drawViews = function(curConfig, events) {
       if (typeof cfgArray[sObj.mode] == 'undefined') {
         cfgArray[sObj.mode] = curConfig.getViewConfig(sObj.mode)
       }
-      /*
-      if(cfgArray[sObj.mode].limit !== 0) {
-        if (ct.children.length >= tCfg[tmode].limit) return 0
-      }
-      */
+
       sObj.start = slot.dataset.start
       sObj.end = slot.dataset.end
       sObj.events = []
@@ -651,7 +648,7 @@ Render.prototype.rollOverflow = function(mode, cfg) {
     }
   })
 }
-//var Render = new Render
+
 RenderHelper.prototype.replaceTitle = function(title, rArr) {
   if(!Array.isArray(rArr) || rArr.length <= 0) return title
   for(var i = 0; i < rArr.length; i++) {
@@ -665,6 +662,7 @@ RenderHelper.prototype.replaceTitle = function(title, rArr) {
 }
 
 RenderHelper.prototype.patternClassName = function(title, pattern) {
+  if(!title) return ""
   if(!Array.isArray(pattern || pattern.length < 2)) return ""
   var r = (pattern[0] instanceof RegExp) ? pattern[0] : pattern[0].toRegexp()
   if(title.match(r)) return " " + pattern[1]

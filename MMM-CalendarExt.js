@@ -1,10 +1,7 @@
-//ToDo
-//Command by notification (reset config)
+//@FIXME self hide and show by profile makes me crazy. I use ugly method, but it works. someday I'll fix it.
+//@TODO I should make refactoring, there are too many garbage codes and duplicates.
 //
-String.prototype.trunc = String.prototype.trunc || function(n){
-  if (n < 10) return this
-  return (this.length > n) ? this.substr(0, n - 1) + '&hellip;' : this
-}
+
 
 
 const SELFNAME = 'calext'
@@ -23,21 +20,24 @@ Module.register("MMM-CalendarExt", {
   },
 
   start: function() {
-    this.showing = 1
+    this.observer = null
     this.isInit = 0
     this.redrawTimer = null
   },
 
   suspend: function() {
-    this.showing = 0
-    Render.hide()
-    this.draw()
+    if (typeof R !== 'undefined' && this.isInit !== 0) {
+      R.hide()
+      this.draw()
+    }
+
   },
 
   resume: function() {
-    this.showing = 1
-    Render.show()
-    this.draw()
+    if (typeof R !== 'undefined' && this.isInit !== 0) {
+      R.show()
+      this.draw()
+    }
   },
 
   addCalendars: async function() {
@@ -68,12 +68,15 @@ Module.register("MMM-CalendarExt", {
 
   getDom: function() {
     if (this.isInit) {
-      var R = new Render ()
+      R = new Render ()
+
       R.drawViews(
         this.CurrentConfigs,
         this.getEventsToDraw()
       )
     }
+
+
     var wrapper = null
     wrapper = document.createElement("div")
     wrapper.id = 'CALEXT_proxy'
@@ -204,6 +207,9 @@ Module.register("MMM-CalendarExt", {
       name: senderName,
       profiles: [],
       views: [],
+      ellipsis: 0,
+      classPattern: [],
+      classPatternWhere: [],
       styleName: curCfg.defaultCalendar.styleName,
       symbol: curCfg.defaultCalendar.symbol,
       title: null,
@@ -266,6 +272,7 @@ Module.register("MMM-CalendarExt", {
     var filterDefault = {
       profiles: [],
       names: [],
+      titlePattern: "",
       from: moment().format('x'),
       to: moment().add(2, 'days').format('x'),
       count: 10
@@ -315,7 +322,11 @@ Module.register("MMM-CalendarExt", {
       ) {
         return 0
       }
-
+      if(filter.titlePattern !== "") {
+        var pattern = filter.titlePattern
+        var r = (pattern instanceof RegExp) ? pattern : pattern.toRegexp()
+        if (!e.title.match(r)) return 0;
+      }
       return 1
     }).sort(function(a,b){
       return a.startDate - b.startDate
@@ -350,19 +361,18 @@ Module.register("MMM-CalendarExt", {
 
     this.sendNotification('CALEXT_SAYS_SCHEDULE', msg)
   },
-
+/*
   modifyConfiguration: function(newCfg, senderName, sessionId) {
     this.CurrentConfigs = this.CurrentConfigs.modify(newCfg)
     var msg = {
       sessionId : sessionId,
       sender : senderName,
     }
-
-    if (this.CurrentConfigs.cfg.system.useProfileConfig) {
-      if (typeof this.CurrentConfigs.cfg.profileConfig !== 'undefined') {
-        if (typeof this.CurrentConfigs.cfg.profileConfig[this.profile] !== 'undefined') {
+    if (this.CurrentConfigs.system.useProfileConfig) {
+      if (typeof this.CurrentConfigs.profileConfigs !== 'undefined') {
+        if (typeof this.CurrentConfigs.profileConfigs[this.profile] !== 'undefined') {
           this.CurrentConfigs
-            = new Configs().make(this.CurrentConfigs.cfg.profileConfig[this.profile])
+            = new Configs().make(this.CurrentConfigs.profileConfigs[this.profile])
         }
       }
     }
@@ -373,7 +383,7 @@ Module.register("MMM-CalendarExt", {
     this.draw()
     this.sendNotification('CALEXT_SAYS_CONFIG_MODIFIED', msg)
   },
-
+*/
   notificationReceived: function(notification, payload, sender) {
     var sessionId = moment().valueOf()
     if (typeof payload !== 'undefined') {
@@ -389,8 +399,10 @@ Module.register("MMM-CalendarExt", {
           this.initAfterLoading()
         }
         break
-      case 'CURRENT_PROFILE':
-        this.initAfterLoading(payload)
+      case 'CHANGED_PROFILE':
+        this.showing = 0
+        this.isInit = 0
+        this.initAfterLoading(payload.to)
         this.sendNotification('CALEXT_SAYS_PROFILE_CHANGED', payload)
         break
       case 'CALEXT_ADD_EVENT':
@@ -422,13 +434,45 @@ Module.register("MMM-CalendarExt", {
         break
       case 'READY_TO_ADD_CALENDAR':
         this.addCalendars()
-        this.draw()
         break;
       }
   },
 
-  initAfterLoading(profile=null) {
+  modifyConfiguration: function(newCfg, senderName, sessionId) {
+    this.CurrentConfigs = this.CurrentConfigs.modify(newCfg)
+    var needReloadCalendar = 1
+    var msg = {
+      sessionId : sessionId,
+      sender : senderName,
+    }
+    if (this.CurrentConfigs.system.useProfileConfig) {
+      if (typeof this.CurrentConfigs.profileConfigs !== 'undefined') {
+        if (typeof this.CurrentConfigs.profileConfigs[this.profile] !== 'undefined') {
+          this.CurrentConfigs
+            = new Configs().make(this.CurrentConfigs.profileConfigs[this.profile])
+        }
+      }
+    } else {
+      needReloadCalendar = 0
+    }
+
+    if(typeof newCfg.calendars !== 'undefined' && newCfg.calendars.length > 0) {
+      needReloadCalendar = 1
+    }
+    if(needReloadCalendar) {
+      this.events = []
+      this.resetCalendars()
+      this.sendNotification('CALEXT_SAYS_READY', null)
+    }
+    this.isInit = 1
+    this.draw()
+    this.sendNotification('CALEXT_SAYS_CONFIG_MODIFIED', msg)
+  },
+
+  initAfterLoading: function(profile="") {
     var self = this
+    var needReloadCalendar = 1
+
     this.CurrentConfigs = new Configs().make(this.config)
     //if(profile == 'User2') debugger;
     if(!profile) {
@@ -437,18 +481,26 @@ Module.register("MMM-CalendarExt", {
       this.profile = profile
     }
     if (this.CurrentConfigs.system.useProfileConfig) {
-      if (typeof this.CurrentConfigs.profileConfig !== 'undefined') {
-        if (typeof this.CurrentConfigs.profileConfig[this.profile] !== 'undefined') {
+      if (typeof this.CurrentConfigs.profileConfigs !== 'undefined') {
+        if (typeof this.CurrentConfigs.profileConfigs[this.profile] !== 'undefined') {
           this.CurrentConfigs
-            = new Configs().make(this.CurrentConfigs.profileConfig[this.profile])
+            = new Configs().make(this.CurrentConfigs.profileConfigs[this.profile])
         }
+      }
+    } else {
+      if(profile) {
+        needReloadCalendar = 0
       }
     }
 
-    this.events = []
-    this.resetCalendars()
+    if(needReloadCalendar) {
+      this.events = []
+      this.resetCalendars()
+      this.sendNotification('CALEXT_SAYS_READY', null)
+    }
+
     this.isInit = 1
-    this.sendNotification('CALEXT_SAYS_READY', null)
+
 
   },
   loadCSS: function() {
@@ -482,13 +534,18 @@ Module.register("MMM-CalendarExt", {
   },
 
   draw: function() {
-    if(!this.isInit) {
-      return
+    if(!this.isInit) return
+    var target = document.getElementsByClassName('MMM-CalendarExt')
+    if (target.length > 0) {
+      if (target[0].style.position == "fixed") {
+        return
+      }
     }
+
+    //if(!this.showing) return
     //this.fetchEvents()
     this.updateDom()
     var self = this
-
     clearInterval(this.redrawTimer)
     this.redrawTimer = null
     var redrawInterval = null

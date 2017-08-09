@@ -35,12 +35,6 @@
 }
 
 
-.CALEXT .endHere {
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
-}
-
-
 .CALEXT .wrapper {
     display: flex;
     flex-wrap: wrap;

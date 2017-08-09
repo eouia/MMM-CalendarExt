@@ -53,7 +53,7 @@ var DEFAULT_CONFIG = {
     position: 'bottom_bar',
     positionOrder: -1,
     overflowRolling: 0,
-    overflowHeight: 100,
+    overflowHeight: 0,
     overflowDuration: 2,
     timeFormat: 'HH:mm',
     dateFormat: "MMM Do",
@@ -62,7 +62,8 @@ var DEFAULT_CONFIG = {
     limit:0,
     oneLineEvent:0,
     replaceTitle: [],
-    classPattern: []
+    classPattern: [],
+    classPatternWhere: ["title"]
   },
   defaultCalendar: {
     name: null,
@@ -71,6 +72,7 @@ var DEFAULT_CONFIG = {
     styleName: "",
     replaceTitle: [],
     classPattern: [],
+    classPatternWhere: ["title"],
     ellipsis: 0,
     symbol: "",
     maxEntries:100,
@@ -94,14 +96,14 @@ function Configs(
   systemConfig={},
   viewsConfig={},
   calendarsConfig={},
-  profileConfig={},
+  profileConfigs={},
   defaultViewConfig={},
   defaultCalendarConfig={}
 ) {
   this.system = systemConfig
   this.views = viewsConfig
   this.calendars = calendarsConfig
-  this.profileConfigs = profileConfig
+  this.profileConfigs = profileConfigs
   this.defaultView = defaultViewConfig
   this.defaultCalendar = defaultCalendarConfig
 
@@ -138,10 +140,9 @@ Configs.prototype.mix = function(tmpl, ncfg, includeCalendars=1) {
   }
 
   //profileConfig
-  if (ncfg.profileConfig !== 'undefined') {
-    cfg.profileConfig = this.assignment({}, ncfg.profileConfig)
+  if (ncfg.profileConfigs !== 'undefined') {
+    cfg.profileConfigs = this.assignment({}, ncfg.profileConfigs)
   }
-
   //calendars
   if (!includeCalendars || typeof ncfg.calendars == 'undefined') {
     cfg.calendars = this.assignment({}, tmpl.calendars)
@@ -187,16 +188,19 @@ Configs.prototype.make = function(newCfg) {
     ret.system,
     ret.views,
     ret.calendars,
-    ret.profileConfig,
+    ret.profileConfigs,
     ret.defaultView,
     ret.defaultCalendar
   )
 }
 Configs.prototype.modify = function(newCfg) {
-  var ret = this.mix(this.cfg, newCfg, 0)
+  var ret = this.mix(this, newCfg)
   this.system = ret.system
   this.views = ret.views
-  this.profileConfig = ret.profileConfig
+  this.calendars = ret.calendars
+  this.defaultView = ret.defaultView
+  this.defaultCalendar = ret.defaultCalendar
+  this.profileConfigs = ret.profileConfigs
   return this;
 }
 Configs.prototype.assignment = function (result) {

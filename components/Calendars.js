@@ -26,6 +26,9 @@ Calendars.prototype.has = function(calendar) {
 }
 
 Calendars.prototype.resetCalendars = function() {
+  this.calendars.forEach(function(c) {
+    c.suicide()
+  })
   this.calendars = []
   Pubsub.emit('ALL_CALENDARS_RESET')
 }

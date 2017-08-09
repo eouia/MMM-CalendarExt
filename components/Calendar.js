@@ -349,6 +349,8 @@ Calendar.prototype.getAllEvents = function() {
 }
 
 Calendar.prototype.suicide = function () {
+  this.deactivate()
+  this.config = null
   this.events = null
 }
 

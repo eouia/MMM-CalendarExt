@@ -91,8 +91,8 @@ Module.register("MMM-CalendarExt", {
         filter.to = moment().endOf('month').format('x')
         break;
       case 'nextm':
-        filter.from = moment().add(1, 'months').startOf('week').format('x')
-        filter.to = moment().add(1, 'months').endOf('week').format('x')
+        filter.from = moment().add(1, 'months').startOf('month').format('x')
+        filter.to = moment().add(1, 'months').endOf('month').format('x')
         break;
       case 'mon':
         dayN = (todayN >= 1) ? 8 : 1
@@ -131,7 +131,7 @@ Module.register("MMM-CalendarExt", {
         break;
     }
     if (command == 'whennext') {
-      filter.to = moment().add(6, 'months').endOf('week').format('x')
+      filter.to = moment().add(6, 'months').endOf('day').format('x')
       filter.titlePattern = (args.title) ? args.title : ""
       filter.count = 1
     }

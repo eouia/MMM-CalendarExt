@@ -112,7 +112,7 @@ Calendar.prototype.fetch = function() {
       var event = data[e]
       //var now = moment()
       //var today = moment().startOf('day')
-      var title = "Unkonwn Event"
+      var title = "Unknown Event"
       var description = ""
       var location = null
       var geo = null
@@ -122,7 +122,8 @@ Calendar.prototype.fetch = function() {
       var endDate = null
       // start of VEVENT
       if (event.type === 'VEVENT') {
-        if (event.summary) {
+
+      	if (event.summary) {
           title
             = (typeof event.summary.val !== "undefined")
               ? event.summary.val
@@ -131,7 +132,7 @@ Calendar.prototype.fetch = function() {
           title = event.description
         }
 
-        location = event.location || null
+      	location = event.location || null
         geo = event.geo || null
         description = event.description || null
 
@@ -143,70 +144,129 @@ Calendar.prototype.fetch = function() {
             uid = event.uid
         }
 
+      	// Get the start and end dates from the event.  If the end date is undefined,
+		// assume the event starts and ends on the same day.
+        startDate = eventDate(event, "start");
+        if (typeof event.end !== "undefined") {
+        	endDate = eventDate(event, "end");
+        } else {
+      		endDate = startDate;
+        }
+
+      	// calculate the duration of the event for use with recurring events.
+        var duration = parseInt(endDate.format("x")) - parseInt(startDate.format("x"));
+
+      	// If the start date has a date but no time, assume it's intended to start 
+		// at the start of the day.
+        if (event.start.length === 8) {
+        	startDate = startDate.startOf("day");
+        }
 
         //RRULE exists? It means recurred.
         if (typeof event.rrule !== 'undefined') {
-          //recurring; event.endDate is useless.
+
+          var addedEvents = 0;
+
+          // For recurring events, get the set of start dates that fall within the range
+          // of dates we're looking for.
           var dates = event.rrule.between(
-            today.toDate(),
+            past.toDate(),
             future.toDate(),
             true,
-            function(date, i) {return i < self.config.maxEntries}
+            function(date, i) {return true;}
           )
 
+          // The "dates" array contains the set of dates within our desired date range range that are valid
+          // for the recurrence rule.  *However*, it's possible for us to have a specific recurrence that
+          // had its date changed from outside the range to inside the range.  For the time being,
+          // we'll handle this by adding *all* recurrence entries into the set of dates that we check,
+          // because the logic below will filter out any recurrences that don't actually belong within
+          // our display range.
+          // TODO: Find a better way to handle this.
+          if (event.recurrences != undefined)
+          {
+          	var pastMoment = moment(past);
+          	var futureMoment = moment(future);
+							
+          	for (var r in event.recurrences)
+          	{
+          		// Only add dates that weren't already in the range we added from the rrule so that 
+          		// we don't double-add those events.
+          		if (moment(new Date(r)).isBetween(pastMoment, futureMoment) != true)
+          		{
+          			dates.push(new Date(r));
+          		}
+          	}
+          }
+
+		  // Loop through the set of date entries to see which recurrences should be added to our event list.
           for(var i in dates) {
 
             var date = dates[i];
-            var dt = moment(date)
-            if (dt.isBefore(past) || dt.isAfter(future)) {
-              return 0
+            var curEvent = event;
+            var showRecurrence = true;
+
+            startDate = moment(date);
+
+          	// For each date that we're checking, it's possible that there is a recurrence override for that one day.
+            if ((curEvent.recurrences != undefined) && (curEvent.recurrences[date.toISOString()] != undefined))
+            {
+            	// We found an override, so for this recurrence, use a potentially different title, start date, and duration.
+            	curEvent = curEvent.recurrences[date.toISOString()];
+            	startDate = moment(curEvent.start);
+            	duration = parseInt(moment(curEvent.end).format("x")) - parseInt(startDate.format("x"));
+			}
+            // If there's no recurrence override, check for an exception date.  Exception dates represent exceptions to the rule.
+            else if ((curEvent.exdate != undefined) && (curEvent.exdate[date.toISOString()] != undefined))
+            {
+            	// This date is an exception date, which means we should skip it in the recurrence pattern.
+            	showRecurrence = false;
             }
 
-            var endDate = null
-            var startDate = moment(dt)
-            if (typeof event.duration !== 'undefined') {
-              var duration = moment.duration(event.duration)
-              endDate = moment(startDate).add(duration)
-            } else {
-              var duration = event.end - event.start
-              endDate = moment(startDate).add(duration, 'ms')
-              //isFulldayEvent = 1
-            }
-            if(
-                (startDate.format('HHmmss') == '000000')
-                && (endDate.format('HHmmss') == '000000')
-            ) {
-                isFulldayEvent = 1
+            endDate = moment(parseInt(startDate.format("x")) + duration, 'x');
+            var recurrenceTitle = getTitleFromEvent(curEvent);
+
+          	// If this recurrence ends before the start of the date range, or starts after the end of the date range, don't add 
+			// it to the event list.
+            if (endDate.isBefore(past) || startDate.isAfter(future)) {
+            	showRecurrence = false;
             }
 
-            var et = {
-              'uid': uid + ':' + i,
-              'name': self.name,
-              'profiles': self.config.profiles,
-              'views': self.config.views,
-              'symbol': self.config.symbol,
-              'styleName': self.config.styleName,
-              'replaceTitle': self.config.replaceTitle,
-              'classPattern' : self.config.classPattern,
-              'classPatternWhere' : self.config.classPatternWhere,
-              'ellipsis': self.config.ellipsis,
-              'oneLineEvent': self.config.oneLineEvent,
-              'title': title,
-              'description': description,
-              'location': location,
-              'geo': geo,
-              'startDate': startDate.format('x'),
-              'endDate': endDate.format("x"),
-              'fullDayEvent': isFulldayEvent,
-              'firstOccurrence': moment(event.start).format('x'),
-              'recurred': 1,
-              'occurrence': i
+            if ((showRecurrence === true) && (addedEvents < self.config.maxEntries)) {
+
+            	addedEvents++;
+
+            	var et = {
+            		'uid': uid + ':' + i,
+            		'name': self.name,
+            		'profiles': self.config.profiles,
+            		'views': self.config.views,
+            		'symbol': self.config.symbol,
+            		'styleName': self.config.styleName,
+            		'replaceTitle': self.config.replaceTitle,
+            		'classPattern' : self.config.classPattern,
+            		'classPatternWhere' : self.config.classPatternWhere,
+            		'ellipsis': self.config.ellipsis,
+            		'oneLineEvent': self.config.oneLineEvent,
+            		'title': recurrenceTitle,
+            		'description': description,
+            		'location': location,
+            		'geo': geo,
+            		'startDate': startDate.format('x'),
+            		'endDate': endDate.format("x"),
+            		'fullDayEvent': isFullDayEvent(curEvent),
+            		'firstOccurrence': moment(event.start).format('x'),
+            		'recurred': 1,
+            		'occurrence': i
+            	}
+
+            	if (startDate.isBefore(now) && endDate.isBefore(now)) {
+            		oldEvents.push(et)
+            	} else {
+            		events.push(et)
+            	}
             }
-            if (startDate.isBefore(now)) {
-              oldEvents.push(et)
-            } else {
-              events.push(et)
-            }
+
           } //iteration of rrule
         //recurred event fetch over
         } else {
@@ -306,6 +366,49 @@ Calendar.prototype.fetch = function() {
   })
   // iCal end.
 }
+
+/* getTitleFromEvent(event)
+* Gets the title from the event.
+*
+* argument event object - The event object to check.
+*
+* return string - The title of the event, or "Event" if no title is found.
+*/
+var getTitleFromEvent = function (event) {
+	var title = "Event";
+	if (event.summary) {
+		title = (typeof event.summary.val !== "undefined") ? event.summary.val : event.summary;
+	} else if (event.description) {
+		title = event.description;
+	}
+
+	return title;
+};
+
+/* isFullDayEvent(event)
+* Checks if an event is a fullday event.
+*
+* argument event obejct - The event object to check.
+*
+* return bool - The event is a fullday event.
+*/
+var isFullDayEvent = function(event) {
+	if (event.start.length === 8) {
+		return true;
+	}
+ 
+	var start = event.start || 0;
+	var startDate = new Date(start);
+	var end = event.end || 0;
+ 
+	if (end - start === 24 * 60 * 60 * 1000 && startDate.getHours() === 0 && startDate.getMinutes() === 0) {
+		// Is 24 hours, and starts on the middle of the night.
+		return true;
+	}
+ 
+	return false;
+};
+
 Calendar.prototype.isEventsChanged = function(eArray) {
   if (typeof eArray == 'undefined') return 0
   if (eArray.length <= 0) return 0

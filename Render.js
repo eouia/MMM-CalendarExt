@@ -111,9 +111,12 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
       if (i % 7 == 0) {
         tr = document.createElement("tr")
 
-        var th = document.createElement("th")
-        th.innerHTML = moment(slotStart).format(cfg.weeksFormat)
-        tr.appendChild(th)
+        if (showWeeks)
+		{
+			var th = document.createElement("th")
+			th.innerHTML = moment(slotStart).format(cfg.weeksFormat)
+			tr.appendChild(th)
+        }
       }
     }
 

@@ -141,7 +141,7 @@ Module.register("MMM-CalendarExt", {
       handler.reply("TEXT", text)
     } else {
       var sd = (events.events.length == 1) ? 1 : 0
-      events.events.forEach((e)=> {
+      events.events.forEach(function(e) {
         var title = (e.title) ? e.title : " "
         var location = (e.location) ? e.location : " "
         var description = (e.description && sd) ? e.description : " "
@@ -159,8 +159,9 @@ Module.register("MMM-CalendarExt", {
     this.observer = null
     this.isInit = 0
     this.redrawTimer = null
-    this.profileSet = new Set()
-    this.nameSet = new Set()
+	// (RP1 Support: Switched from Set to Array)
+    this.profileSet = new Array()
+    this.nameSet = new Array()
   },
 
   suspend: function() {
@@ -177,11 +178,16 @@ Module.register("MMM-CalendarExt", {
     }
   },
 
-  addCalendars: async function() {
-    var self = this
-    for (var c in this.CurrentConfigs.calendars) {
-      self.addCalendar(self.CurrentConfigs.getCalConfig(c))
-      await sleep(1000)
+  // (RP1 Support: Switched from async / await to a once-per-second scheduled call)
+  addCalendars: function() {
+  	var self = this
+  	var sleepMs = 1000;
+  	for (var c in this.CurrentConfigs.calendars) {
+  		// Only add one calendar per second.  RP1 Javascript doesn't support async / await, so schedule
+		// each addCalendar call an extra second into the future.
+  		var config = self.CurrentConfigs.getCalConfig(c);
+    	setTimeout(self.addCalendar(config), sleepMs);
+    	sleepMs += 1000;
     }
   },
 
@@ -190,7 +196,9 @@ Module.register("MMM-CalendarExt", {
     this.sendSocketNotification("RESET_CALENDARS")
   },
 
-  addCalendar: function (calendar, sender = SELFNAME, reqKey = null) {
+  addCalendar: function (calendar, sender, reqKey) {
+  	if (typeof sender === 'undefined') { sender = SELFNAME; }
+  	if (typeof reqKey === 'undefined') { reqKey = null; }
     calendar.sender = sender
     this.sendSocketNotification(
       "ADD_CALENDAR",
@@ -255,23 +263,29 @@ Module.register("MMM-CalendarExt", {
         }
       })
     }
+  	// (RP1 Support: using Arrays instead of Sets)
     if (!isForAnyView) {
       eArr = eArr.filter(function(e) {
-        var eSet = new Set(e.views)
-        var vSet = new Set(views)
-        if (eSet.size > 0) { //is this event dedicated to some views?
-          let intersection = new Set([...eSet].filter(x => vSet.has(x)));
-          if (intersection.size > 0) { //is any views in event views?
-            return 1 // Yes some views belong to event views
-          } else {
-            return 0 //No, there is no views belong to event
-          }
+      	if (e.views.length > 0) { //is this event dedicated to some views?
+      		// Check to see if any of the event's views are in our list of views
+      		for (var i = e.views.length - 1; i >= 0; i--)
+      		{
+				// Yes this event belongs to at least one view
+      			if (views.indexOf(e.views[i]) != -1)
+      			{
+      				return 1;
+      			}
+      		}
+
+			// No, this event doesn't belong to a view
+      		return 0;
         } else {
           return  1 //No, this event is for all view
         }
       })
     }
-    eArr.sort(function(a, b) {
+
+    eArr.sort(function (a, b) {
       return a - b
     })
     return eArr
@@ -391,22 +405,35 @@ Module.register("MMM-CalendarExt", {
     }
   },
 
-  makeIndex: function() {
-    var events = this.events.concat(this.instantEvents)
-    var profileSet = new Set()
-    var nameSet = new Set()
-    events.forEach((e)=>{
-      if(e.profiles.length > 0) {
-        var epf = new Set(e.profiles)
-        profileSet = new Set([...profielSet, ...epf])
+  makeIndex: function () {
+  	var events = this.events.concat(this.instantEvents)
+	// (RP1 Support: Switched from Set to Array)
+  	var profileSet = new Array()
+    var nameSet = new Array()
+    var tempProfileSet = {}
+    events.forEach(function (e) {
+      if (e.profiles.length > 0) {
+      	// Build up a union of all the profiles we find on all the events
+      	for (var i = e.profiles.length - 1; i >= 0; i--)
+      	{
+      		tempProfileSet[e.profiles[i]] = e.profiles[i];
+      	}
       }
       if(e.name) nameSet.add(e.name)
     })
+
+	// Turn the union of profiles back into an array
+    for (var k in tempProfileSet) {
+    	if (tempProfileSet.hasOwnProperty(k)) {
+    		profileSet.push(tempProfileSet[k]);
+    	}
+    }
+
     this.profileSet = profileSet
     this.nameSet = nameSet
   },
 
-  findSchedule(filter, senderName, sessionId) {
+  findSchedule: function(filter, senderName, sessionId) {
     var events = this.events.concat(this.instantEvents)
     var final = events.filter(function(e){
       if (filter.profiles.length > 0) {
@@ -482,7 +509,7 @@ Module.register("MMM-CalendarExt", {
     return msg
   },
 
-  saySchedule(filterOrigin, senderName, sessionId) {
+  saySchedule: function(filterOrigin, senderName, sessionId) {
     var filter ={}
     var filterDefault = {
       profiles: [],
@@ -590,7 +617,8 @@ Module.register("MMM-CalendarExt", {
     this.sendNotification('CALEXT_SAYS_CONFIG_MODIFIED', msg)
   },
 
-  initAfterLoading: function(profile="") {
+  initAfterLoading: function(profile) {
+  	if (typeof profile === 'undefined') { profile = ""; }
     var self = this
     var needReloadCalendar = 1
     this.CurrentConfigs = new Configs().make(this.config)
@@ -674,7 +702,3 @@ Module.register("MMM-CalendarExt", {
     }, redrawInterval)
   },
 })
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}

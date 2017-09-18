@@ -41,8 +41,9 @@ module.exports = NodeHelper.create({
     }
   },
 
-  cmd_ADD_CALENDAR: function (calConfig, sender, reqKey = null) {
-    this.calendars.registerCalendar(calConfig, sender, 1)
+  cmd_ADD_CALENDAR: function (calConfig, sender, reqKey) {
+  	if (typeof reqKey === 'undefined') { reqKey = null; }
+  	this.calendars.registerCalendar(calConfig, sender, 1)
   },
   cmd_RESET_CALENDARS: function() {
     this.calendars.resetCalendars()

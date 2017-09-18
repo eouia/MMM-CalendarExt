@@ -33,8 +33,7 @@ Calendars.prototype.resetCalendars = function() {
   Pubsub.emit('ALL_CALENDARS_RESET')
 }
 
-Calendars.prototype.registerCalendar = function(calConfig, sender, autoStart) {
-  if (typeof autoStart === 'undefined') { autoStart = 0; }
+Calendars.prototype.registerCalendar = function(calConfig, sender, autoStart = 0) {
   var calendar = new Calendar(calConfig, sender, autoStart)
   calendar.sender = sender
   if (this.has(calendar)) {

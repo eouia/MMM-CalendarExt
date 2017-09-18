@@ -13,7 +13,8 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 
   var wrapper = document.createElement("div")
   wrapper.id = 'CALEXT_' + mode
-  wrapper.className = "wrapper slots slots_" + mode + " " + mode + " " + cfg.direction
+  wrapper.className = "wrapper slots slots_" + mode + " " + mode
+  wrapper.style.flexDirection = cfg.direction
 
   var table, showWeeks
   if (mode == 'month') { //month table prepare
@@ -454,9 +455,8 @@ RenderHelper.prototype.getRegionContainer = function(regionName) {
   return container
 }
 
-function Render(showing) {
-	if (typeof showing === 'undefined') { showing = 1; }
-	this.showing = showing
+function Render(showing=1) {
+  this.showing = showing
   return this
 }
 
@@ -520,21 +520,21 @@ Render.prototype.drawViews = function(curConfig, events) {
   var slotArray = []
   var cfgArray = {}
   if (slots.length > 0) {
-  	var tCfg = {};
-  	Array.prototype.forEach.call(slots, function (slot) {
-  		var sObj = {}
-  		sObj.slot = slot;
-  		sObj.container = slot.querySelector('.eventsBoard .events')
-  		sObj.mode = slot.dataset.view
-  		if (typeof cfgArray[sObj.mode] == 'undefined') {
-  			cfgArray[sObj.mode] = curConfig.getViewConfig(sObj.mode)
-  		}
+    var tCfg = {};
+    slots.forEach(function(slot) {
+      var sObj = {}
+      sObj.slot = slot;
+      sObj.container = slot.querySelector('.eventsBoard .events')
+      sObj.mode = slot.dataset.view
+      if (typeof cfgArray[sObj.mode] == 'undefined') {
+        cfgArray[sObj.mode] = curConfig.getViewConfig(sObj.mode)
+      }
 
-  		sObj.start = slot.dataset.start
-  		sObj.end = slot.dataset.end
-  		sObj.events = []
-  		slotArray.push(sObj)
-  	})
+      sObj.start = slot.dataset.start
+      sObj.end = slot.dataset.end
+      sObj.events = []
+      slotArray.push(sObj)
+    })
 
     var matchEventSlot = function(mode, eventStart, eventEnd, slotStart, slotEnd) {
       var eStart = moment(parseInt(eventStart))
@@ -562,17 +562,13 @@ Render.prototype.drawViews = function(curConfig, events) {
     }
 
     events.forEach(function(e) {
-    	slotArray.forEach(function (sObj) {
-			// Only accept events that belong in this view (or all views)
-    		if ((e.views.length <= 0) || (e.views.indexOf(sObj.mode) >= 0))
-    		{
-    			var matched = matchEventSlot(sObj.mode, e.startDate, e.endDate, sObj.start, sObj.end)
-    			if (matched > 0) {
-    				sObj.events.push(e)
-    			} else {
-    				//do nothing
-    			}
-    		}
+      slotArray.forEach(function(sObj) {
+        var matched = matchEventSlot(sObj.mode, e.startDate, e.endDate, sObj.start, sObj.end)
+        if (matched > 0) {
+          sObj.events.push(e)
+        } else {
+          //do nothing
+        }
       })
     })
     slotArray.forEach(function(sObj) {
@@ -639,15 +635,14 @@ Render.prototype.rollOverflow = function(mode, cfg) {
     if (height < node.clientHeight  && height !== 0) {
       node.className = "eventsBoard overflowed"
       node.style.height = height + "px"
-      node.style.overflow = 'hidden'
+      node.style.overflow = 'hiddne'
       if (cfg.overflowRolling !== 1) {
         return 0
       }
       var copieshack = [].slice.call(node.childNodes)
       var duration = copieshack[0].childNodes.length * cfg.overflowDuration
-      copieshack.forEach(function (n) {
-      	n.style.WebkitAnimationDuration = duration + 's'
-      	n.style.animationDuration = duration + 's'
+      copieshack.forEach(function(n){
+        n.style.animationDuration = duration + 's'
         node.appendChild(n.cloneNode(1))
       })
     } else {

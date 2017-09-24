@@ -15,6 +15,9 @@ Alternative calendar module for [MagicMirror](https://magicmirror.builders/)
 - Your other module can ask events and get answers.
 - Almost everything customizable with configuration and CSS.
 
+## For RPI zero or RPI 1 users
+- For RPI zero or RPI 1 users, use the branch `forRPI1`(https://github.com/eouia/MMM-CalendarExt/tree/forRPI1)
+
 ## Install
 ```
 cd ~/MagicMirror/modules

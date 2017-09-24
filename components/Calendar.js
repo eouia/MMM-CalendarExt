@@ -15,10 +15,7 @@ var iCal = require('../vendor/ical.js')
 var moment = require('moment')
 var Pubsub = require('./Pubsub.js')
 
-function Calendar (calConfig, sender, autostart) {
-  if (typeof sender === 'undefined') { sender = null; }
-  if (typeof autostart === 'undefined') { autostart = 0; }
-
+function Calendar (calConfig, sender=null, autostart=0) {
   this.type = 'static'
   this.autostart = autostart
   this.sender = sender
@@ -86,7 +83,7 @@ function Calendar (calConfig, sender, autostart) {
   }
 }
 Calendar.prototype.fetch = function() {
-  //console.log("[CALEXT]",this.httpUrl, " >> Fetch starts.")
+  console.log("[CALEXT]",this.httpUrl, " >> Fetch starts.")
   var self = this
   self.status.state = 'fetching'
 
@@ -364,8 +361,8 @@ Calendar.prototype.fetch = function() {
       }
     }
 
-    //console.log("[CALEXT]",self.httpUrl, " >> ")
-    //console.log(self.status)
+    console.log("[CALEXT]",self.httpUrl, " >> ")
+    console.log(self.status)
   })
   // iCal end.
 }

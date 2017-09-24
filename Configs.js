@@ -93,20 +93,13 @@ var DEFAULT_CONFIG = {
 
 
 function Configs(
-  systemConfig,
-  viewsConfig,
-  calendarsConfig,
-  profileConfigs,
-  defaultViewConfig,
-  defaultCalendarConfig
+  systemConfig={},
+  viewsConfig={},
+  calendarsConfig={},
+  profileConfigs={},
+  defaultViewConfig={},
+  defaultCalendarConfig={}
 ) {
-  if (typeof systemConfig === 'undefined') { systemConfig = {}; }
-  if (typeof viewsConfig === 'undefined') { viewsConfig = {}; }
-  if (typeof calendarsConfig === 'undefined') { calendarsConfig = {}; }
-  if (typeof profileConfigs === 'undefined') { profileConfigs = {}; }
-  if (typeof defaultViewConfig === 'undefined') { defaultViewConfig = {}; }
-  if (typeof defaultCalendarConfig === 'undefined') { defaultCalendarConfig = {}; }
-
   this.system = systemConfig
   this.views = viewsConfig
   this.calendars = calendarsConfig
@@ -117,9 +110,8 @@ function Configs(
   return this;
 }
 
-Configs.prototype.mix = function(tmpl, ncfg, includeCalendars) {
-	if (typeof includeCalendars === 'undefined') { includeCalendars = 1; }
-	var cfg = {}
+Configs.prototype.mix = function(tmpl, ncfg, includeCalendars=1) {
+  var cfg = {}
 
   //system
 

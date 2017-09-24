@@ -1,5 +1,6 @@
 # MMM-CalendarExt
-Alternative calendar module for [MagicMirror](https://magicmirror.builders/)
+Alternative calendar module for [MagicMirror](https://magicmirror.builders/).
+
 This branch for RPI zero or RPI 1 users.
 
 ## Screenshots

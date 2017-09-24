@@ -1,5 +1,6 @@
 # MMM-CalendarExt
 Alternative calendar module for [MagicMirror](https://magicmirror.builders/)
+This branch for RPI zero or RPI 1 users.
 
 ## Screenshots
 ![](https://github.com/eouia/MMM-CalendarExt/blob/master/screencaptures/monthly_home.png)

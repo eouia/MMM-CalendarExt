@@ -18,20 +18,23 @@ Module.register("MMM-CalendarExt", {
   },
 
   getCommands: function(register) {
-    register.add({
-      command: 'whennext',
-      description : 'Show next event has title. You can try like this; `/whennext birthday`',
-      callback : 'TLGBOT_skd',
-      args_pattern : [/[^\s]+/i],
-      args_mapping : ["title"]
-    })
-    register.add({
-      command: 'skd',
-      description : 'Find upcoming schedules with specific date, calendar name and profile.\nSee more help with `/skd`',
-      callback : 'TLGBOT_skd',
-      args_pattern: [/d:[^ ,]+/i, /c:[^ ,]+/, /p:[^ ,]+/, /n:[0-9]+/],
-      args_mapping: ["date", "calendar", "profile", "count"]
-    })
+    if (register.constructor.name == 'TelegramBotCommandRegister') {
+      register.add({
+        command: 'whennext',
+        description : 'Show next event has title. You can try like this; `/whennext birthday`',
+        callback : 'TLGBOT_skd',
+        args_pattern : [/[^\s]+/i],
+        args_mapping : ["title"]
+      })
+      register.add({
+        command: 'skd',
+        description : 'Find upcoming schedules with specific date, calendar name and profile.\nSee more help with `/skd`',
+        callback : 'TLGBOT_skd',
+        args_pattern: [/d:[^ ,]+/i, /c:[^ ,]+/, /p:[^ ,]+/, /n:[0-9]+/],
+        args_mapping: ["date", "calendar", "profile", "count"]
+      })
+    }
+
   },
 
   TLGBOT_skd: function (command, handler) {

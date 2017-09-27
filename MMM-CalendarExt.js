@@ -2,7 +2,6 @@
 //@TODO I should make refactoring, there are too many garbage codes and duplicates.
 //
 
-const SELFNAME = 'calext'
 
 Module.register("MMM-CalendarExt", {
   events: [],
@@ -193,7 +192,7 @@ Module.register("MMM-CalendarExt", {
     this.sendSocketNotification("RESET_CALENDARS")
   },
 
-  addCalendar: function (calendar, sender = SELFNAME, reqKey = null) {
+  addCalendar: function (calendar, sender = 'calext', reqKey = null) {
     calendar.sender = sender
     this.sendSocketNotification(
       "ADD_CALENDAR",
@@ -512,7 +511,7 @@ Module.register("MMM-CalendarExt", {
 
   notificationReceived: function(notification, payload, sender) {
     var sessionId = moment().valueOf()
-    if (typeof payload !== 'undefined') {
+    if (typeof payload !== 'undefined' && payload !== null) {
       if (typeof payload.sessionId !== 'undefined') {
         sessionId = payload.sessionId
       }

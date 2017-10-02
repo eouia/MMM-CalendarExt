@@ -604,7 +604,11 @@ Render.prototype.drawViews = function(curConfig, events) {
 					if (a.fullDayEvent !== b.fullDayEvent) {
 						return b.fullDayEvent - a.fullDayEvent
 					} else {
-						return a.startDate - b.startDate
+						if (a.startDate == b.startDate) {
+							return (a.name > b.name)
+						} else {
+							return a.startDate - b.startDate
+						}
 					}
 				})
 			}

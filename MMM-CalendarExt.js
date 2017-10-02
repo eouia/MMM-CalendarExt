@@ -337,6 +337,8 @@ Module.register("MMM-CalendarExt", {
       profiles: [],
       views: [],
       ellipsis: 0,
+      symbolPattern: [],
+      symbolPatternWhere: [],
       classPattern: [],
       classPatternWhere: [],
       styleName: curCfg.defaultCalendar.styleName,

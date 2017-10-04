@@ -288,7 +288,6 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
 			})
 		}
 	})
-	console.log(ev.symbol)
 	var sa = ev.symbol.split("@")
 	var symbol = sa[0]
 	var symbolType = (typeof sa[1] !== "undefined") ? sa[1] : "fa"
@@ -603,12 +602,18 @@ Render.prototype.drawViews = function(curConfig, events) {
 				sObj.events.sort(function(a, b) {
 					if (a.fullDayEvent !== b.fullDayEvent) {
 						return b.fullDayEvent - a.fullDayEvent
-					} else {
-						if (a.startDate == b.startDate) {
-							return (a.name > b.name)
-						} else {
-							return a.startDate - b.startDate
-						}
+					}
+					if (a.startDate < b.startDate) {
+						return -1
+					}
+					if (a.startDate > b.startDate) {
+						return 1
+					}
+					if (a.name < b.name) {
+						return -1
+					}
+					if (a.name > b.name) {
+						return 1
 					}
 				})
 			}

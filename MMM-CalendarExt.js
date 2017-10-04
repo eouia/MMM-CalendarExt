@@ -273,9 +273,19 @@ Module.register("MMM-CalendarExt", {
         }
       })
     }
+    /*
     eArr.sort(function(a, b) {
-      return a - b
+      if (a.fullDayEvent !== b.fullDayEvent) {
+        return b.fullDayEvent - a.fullDayEvent
+      } else {
+        if (a.startDate == b.startDate) {
+          return (a.name > b.name)
+        } else {
+          return a.startDate - b.startDate
+        }
+      }
     })
+    */
     return eArr
   },
 

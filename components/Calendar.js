@@ -393,7 +393,7 @@ var getTitleFromEvent = function (event) {
 */
 var isFullDayEvent = function(event) {
 	if (event.start.length === 8) {
-		return true;
+		return 1;
 	}
 
 	var start = event.start || 0;
@@ -402,10 +402,10 @@ var isFullDayEvent = function(event) {
 
 	if (end - start === 24 * 60 * 60 * 1000 && startDate.getHours() === 0 && startDate.getMinutes() === 0) {
 		// Is 24 hours, and starts on the middle of the night.
-		return true;
+		return 1;
 	}
 
-	return false;
+	return 0;
 };
 
 Calendar.prototype.isEventsChanged = function(eArray) {

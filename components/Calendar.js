@@ -230,7 +230,6 @@ Calendar.prototype.fetch = function() {
 						if ((showRecurrence === true) && (addedEvents < self.config.maxEntries)) {
 
 							addedEvents++;
-
 							var et = {
 								"uid": uid + ":" + i,
 								"name": self.name,
@@ -293,7 +292,6 @@ Calendar.prototype.fetch = function() {
 					if (startDate.isBefore(past) || endDate.isAfter(future)) {
 						continue
 					}
-
 					var et = {
 						"uid": uid,
 						"name": self.name,

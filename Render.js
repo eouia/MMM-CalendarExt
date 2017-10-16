@@ -640,11 +640,13 @@ Render.prototype.drawViews = function(curConfig, events) {
 
 		events.forEach(function(e) {
 			slotArray.forEach(function(sObj) {
-				var matched = matchEventSlot(sObj.mode, e.startDate, e.endDate, sObj.start, sObj.end)
-				if (matched > 0) {
-					sObj.events.push(e)
-				} else {
-					//do nothing
+				if (e.views.indexOf(sObj.mode) > -1) {
+					var matched = matchEventSlot(sObj.mode, e.startDate, e.endDate, sObj.start, sObj.end)
+					if (matched > 0) {
+						sObj.events.push(e)
+					} else {
+						//do nothing
+					}
 				}
 			})
 		})

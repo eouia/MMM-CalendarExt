@@ -357,7 +357,7 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
 
 	var eventLocationWrapper = document.createElement("div")
 	eventLocationWrapper.className = "eventLocation"
-	eventLocationWrapper.innerHTML = ev.location ? ev.location : ""
+	eventLocationWrapper.innerHTML = ev.location ? (ev.location.val ? ev.location.val : ev.location) : ("")
 	var eventDescriptionWrapper = document.createElement("div")
 	eventDescriptionWrapper.className = "eventDescription"
 	eventDescriptionWrapper.innerHTML = ev.description ? ev.description : ""

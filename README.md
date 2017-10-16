@@ -6,7 +6,7 @@ Alternative calendar module for [MagicMirror](https://magicmirror.builders/)
 ![](https://github.com/eouia/MMM-CalendarExt/blob/master/screencaptures/screen.jpg)
 
 ## Features
-- `daily`, `weekly`, `monthly`, `month`, `upcoming`, `current` views are supported.
+- `daily`, `weekly`, `monthly`, `month`, `weeks`, `upcoming`, `current` views are supported.
 - All/any views in any regions.
 - Profiles are supported (`MMM-ProfileSwitcher` or any modules which use `CHANGED_PROFILE` notification)
 - Configuration can be changed by profile.

@@ -225,7 +225,8 @@
     order:1;
 }
 
-.CALEXT .calendarMonth {
+
+.CALEXT .tableStyle {
     margin:auto;
     max-width: 90%;
 }
@@ -242,32 +243,39 @@
   line-height:150%;
 }
 
-.CALEXT .calendarMonth .eventContent {
 
+.CALEXT .tableStyle .eventContent {
     text-overflow:ellipsis;
+    font-weight:normal;
+    font-size:70%;
 }
 
-.CALEXT .calendarMonth th {
+
+.CALEXT .tableStyle th {
     font-size: 70%;
     font-weight: normal;
     border:1px solid #000;
 }
 
-.CALEXT .calendarMonth td {
+
+.CALEXT .tableStyle td {
     padding:0;
     margin:0;
     vertical-align:top;
     border:1px solid #000;
+    width:14%;
 }
 
-.CALEXT .calendarMonth .header {
+
+.CALEXT .tableStyle .header {
     padding:0;
     margin:0;
     text-align:right;
     border-radius:0
 }
 
-.CALEXT .calendarMonth .header .title {
+
+.CALEXT .tableStyle .header .title {
     font-size:50%;
     padding:0;
     padding-right:5px;
@@ -277,91 +285,107 @@
     color:#999
 }
 
-.CALEXT .calendarMonth .header .subtitle {
+.CALEXT .tableStyle .header .subtitle {
   display:none;
 }
 
-.CALEXT #CALEXT_month .calendarMonth .thismonth.day_6 .header {
+
+/* for weeks and month */
+.CALEXT  .tableStyle .thismonth.day_6 .header {
     background:#66C;
     color:#99F;
 }
 
-.CALEXT #CALEXT_month .calendarMonth .thismonth.day_7 .header {
+.CALEXT  .tableStyle .thismonth.day_7 .header {
     background:#C66;
     color:#F99;
 }
 
-.CALEXT #CALEXT_month .calendarMonth .thismonth.day_6 .header .title{
+.CALEXT  .tableStyle .thismonth.day_6 .header .title{
     color:#CCF;
 }
 
-.CALEXT #CALEXT_month .calendarMonth .thismonth.day_7 .header .title{
+.CALEXT  .tableStyle .thismonth.day_7 .header .title{
     color:#FCC;
 }
 
-
-
-
-
-
-
-.CALEXT #CALEXT_month .calendarMonth .today {
-  border:3px solid #DEA527;
-}
-
-.CALEXT #CALEXT_month .calendarMonth .today .header {
-    background-color:#FFF;
-}
-
-.CALEXT #CALEXT_month .calendarMonth .today .header .title {
-    color:#000;
-}
-
-
-
-.CALEXT #CALEXT_month .weeks .day_6  {
+.CALEXT  .weeks .day_6  {
     background:rgba(51,51,153,0.3);
 }
 
-.CALEXT #CALEXT_month .weeks .day_7 {
+.CALEXT  .weeks .day_7 {
     background:rgba(153,51,153,0.3);
 }
 
-.CALEXT #CALEXT_month .calendarMonth .day_6 {
+.CALEXT  .tableStyle .day_6 {
     background:rgba(51,51,255,0.3);
     color:#99F;
 }
 
-
-.CALEXT #CALEXT_month .calendarMonth .day_7 {
+.CALEXT  .tableStyle .day_7 {
     background:rgba(255,51,51,0.3);
     color:#F99;
 }
 
-.CALEXT #CALEXT_month tr.thisweek {
+.CALEXT  tr.thisweek {
     background-color : rgba(255,255,127, 0.1);
 }
 
-.CALEXT #CALEXT_month .thisweek th {
+.CALEXT  .thisweek th {
     color:#FF9;
     font-weight:bold;
 }
 
-.CALEXT #CALEXT_month .thismonth {
+.CALEXT  .thismonth {
     background-color : rgba(127,127,127, 0.1);
 }
 
-.CALEXT #CALEXT_month .thismonth .header .title{
+.CALEXT  .thismonth .header .title{
     color:#FFF;
 }
 
-.CALEXT #CALEXT_month .lastmonth,
-.CALEXT #CALEXT_month .nextmonth {
+.CALEXT  .lastmonth,
+.CALEXT  .nextmonth {
 }
 
-.CALEXT #CALEXT_month .today {
+.CALEXT  .today {
     background-color : rgba(255,255,255, 0.9);
 }
+
+.CALEXT  .eventLocation,
+.CALEXT  .eventTime {
+    display:none;
+}
+
+.CALEXT  .event {
+    font-weight:normal;
+    font-size:50%;
+}
+
+.CALEXT  .event .symbol {
+    order:1;
+    display:block;
+    flex-basis:20px;
+    text-align:center;
+    min-width:20px;
+}
+
+.CALEXT   .events .symbol.emoji {
+  font-size:50%;
+}
+
+.CALEXT  .tableStyle .today {
+  border:3px solid #DEA527;
+}
+
+.CALEXT  .tableStyle .today .header {
+    background-color:#FFF;
+}
+
+.CALEXT  .tableStyle .today .header .title {
+    color:#000;
+}
+
 
 .CALEXT .weeks th{
     width:100px;
@@ -372,23 +396,6 @@
 .CALEXT .weeks th {
     width:100px;
 }
-.CALEXT #CALEXT_month .eventLocation,
-.CALEXT #CALEXT_month .eventTime {
-    display:none;
-}
-
-.CALEXT #CALEXT_month .event {
-    font-weight:normal;
-    font-size:50%;
-}
-
-.CALEXT #CALEXT_month .event .symbol {
-    order:1;
-    display:block;
-    flex-basis:20px;
-    text-align:center;
-    min-width:20px;
-}
 
 .CALEXT .oneLineEvent {
   line-height:1em;
@@ -396,9 +403,6 @@
   text-overflow:ellipsis;
   overflow:hidden;
 }
-
-
-
 
 /** Preset styles of event **/
 .CALEXT .md-12 {
@@ -439,9 +443,6 @@
 }
 
 
-.CALEXT  #CALEXT_month .events .symbol.emoji {
-  font-size:50%;
-}
 
 .CALEXT .event.fulldayevent .eventContainer {
   background-color:inherit;

@@ -6,6 +6,10 @@ RenderHelper.prototype.setLocale = function(locale) {
 	this.locale = locale
 }
 
+RenderHelper.prototype.prepareTableView = function(mode) {
+
+}
+
 RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 	var cfg = cfgView
 	var counts = cfg.counts;
@@ -18,12 +22,12 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 
 	var table, showWeeks
 	if (mode == "month") { //month table prepare
+		wrapper.className += " tableStyle"
 		showWeeks = cfg.showWeeks
 		var monthTitleWrapper = document.createElement("div")
 		monthTitleWrapper.className = "monthTitle month_" + moment().format("M")
 		monthTitleWrapper.innerHTML
 			= moment().startOf("month").format(cfg.monthTitleFormat)
-
 		wrapper.appendChild(monthTitleWrapper)
 
 		var calStart = moment().locale(locale).startOf("month").weekday(0).startOf("day")
@@ -54,8 +58,39 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 		table.appendChild(thead)
 	}
 
+	if (mode == "weeks") {
+		wrapper.className += " tableStyle"
+		showWeeks = cfg.showWeeks
 
-/** Start Events push to slot **/
+		var calStart = moment().locale(locale).startOf("week").weekday(0).startOf("day")
+
+		table = document.createElement("table")
+		table.className = "calendarWeeks column_" + ((showWeeks) ? 8 : 7)
+		var thead = document.createElement("thead")
+		thead.className = "calendarHead"
+		var tr = document.createElement("tr")
+		tr.className = "weekHeader"
+
+		if (showWeeks) {
+			var th = document.createElement("th")
+			th.className = "weekday_header"
+			th.innerHTML = cfg.weeksTitle
+			tr.appendChild(th)
+		}
+		var s = moment().locale(locale).startOf("week")
+		for(var i=0; i<7; i++) {
+			var th = document.createElement("th")
+
+			th.className = "day_" + moment(s).format("E")
+			th.innerHTML = moment(s).format(cfg.weekdayFormat)
+			s.add(1, "day")
+			tr.appendChild(th)
+		}
+		thead.appendChild(tr)
+		table.appendChild(thead)
+	}
+
+	/** Start Events push to slot **/
 
 	var tmpl = {
 		monthly: {
@@ -73,6 +108,10 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 		month: {
 			p : "days",
 			d : "day"
+		},
+		weeks: {
+			p : "days",
+			d : "day"
 		}
 	}
 
@@ -85,6 +124,13 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 		var thisMonSlots = moment(cur).daysInMonth()
 		counts = Math.ceil((lastMonSlots + thisMonSlots) / 7) * 7
 		cur = moment(cur).startOf("month").weekday(0).startOf("day")
+	}
+
+	if (mode == "weeks") {
+		var lastWeekSlots = moment(cur).startOf("week").weekday()
+		var weekSlots = (cfg.counts) * 7
+		counts = Math.ceil((lastWeekSlots + weekSlots) / 7) * 7
+		cur = moment(cur).startOf("week").weekday(0).startOf("day")
 	}
 
 	var tr
@@ -107,7 +153,7 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 		}
 
 
-		if (mode == "month") {
+		if (mode == "month" || mode == "weeks") {
 			if (i % 7 == 0) {
 				tr = document.createElement("tr")
 				if (showWeeks){
@@ -119,7 +165,7 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 		}
 
 		var slotWrapper
-			= (mode == "month")
+			= (mode == "month" || mode == "weeks")
 				? document.createElement("td")
 				: document.createElement("div")
 
@@ -155,20 +201,21 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 			var tLocaleYear = sStart.format("YYYY")
 
 			switch(mode) {
-				case "month":
-				case "daily":
-					className += " day_" + tDay + " localeDay_" + tLocaleDay + " date_" + tDate
-				case "weekly":
-					className += " week_" + tWeek
-				case "monthly":
-					className += " month_" + tMonth + " year_" + tYear + " localeYear_" + tLocaleYear
-				default:
-					className
-						+= ((isToday) ? " today" : "")
-						+ ((isThisWeek) ? " thisweek" : "")
-						+ ((isThisMonth) ? " thismonth" : "")
-						+ ((isThisYear) ? " thisyear" : "")
-					break;
+			case "month":
+			case "weeks":
+			case "daily":
+				className += " day_" + tDay + " localeDay_" + tLocaleDay + " date_" + tDate
+			case "weekly":
+				className += " week_" + tWeek
+			case "monthly":
+				className += " month_" + tMonth + " year_" + tYear + " localeYear_" + tLocaleYear
+			default:
+				className
+					+= ((isToday) ? " today" : "")
+					+ ((isThisWeek) ? " thisweek" : "")
+					+ ((isThisMonth) ? " thismonth" : "")
+					+ ((isThisYear) ? " thisyear" : "")
+				break;
 			}
 
 			slotWrapper.className += className
@@ -176,30 +223,41 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 			var md = moment(sStart).locale(locale)
 
 			switch(mode) {
-				case "monthly":
-					title
-						= (isThisYear)
-							? md.format(cfg.titleFormat) : md.format(cfg.overTitleFormat)
-					subtitle = md.format(cfg.subtitleFormat)
-					break
-				case "weekly":
-					title
-						= (isThisYear)
-							? md.format(cfg.titleFormat)
-							: md.format(cfg.overTitleFormat)
-					subtitle
-						= moment(md).startOf("week").format(cfg.subtitleFormat)
-						+ " - "
-						+ moment(md).endOf("week").format(cfg.subtitleFormat)
-					break
-				case "daily":
-						subtitle = md.format(cfg.subtitleFormat)
-				case "month":
-					title
-						= (isThisMonth)
-							? md.format(cfg.titleFormat)
-							: md.format(cfg.overTitleFormat)
-					break
+			case "monthly":
+				title
+					= (isThisYear)
+						? md.format(cfg.titleFormat) : md.format(cfg.overTitleFormat)
+				subtitle = md.format(cfg.subtitleFormat)
+				break
+			case "weekly":
+				title
+					= (isThisYear)
+						? md.format(cfg.titleFormat)
+						: md.format(cfg.overTitleFormat)
+				subtitle
+					= moment(md).startOf("week").format(cfg.subtitleFormat)
+					+ " - "
+					+ moment(md).endOf("week").format(cfg.subtitleFormat)
+				break
+			case "daily":
+				subtitle = md.format(cfg.subtitleFormat)
+				title
+					= (isThisMonth)
+						? md.format(cfg.titleFormat)
+						: md.format(cfg.overTitleFormat)
+				break;
+			case "month":
+				title
+					= (isThisMonth)
+						? md.format(cfg.titleFormat)
+						: md.format(cfg.overTitleFormat)
+				break
+			case "weeks":
+				title
+					= (isThisMonth)
+						? md.format(cfg.titleFormat)
+						: md.format(cfg.overTitleFormat)
+				break
 			}
 
 		} else {
@@ -232,7 +290,7 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 		eventsBoardWrapper.appendChild(eventsWrapper)
 		slotWrapper.appendChild(eventsBoardWrapper)
 
-		if (mode == "month") {
+		if (mode == "month" || mode == "weeks") {
 			tr.className
 				= "week_" + moment(slotStart).format("w")
 				+ ((isThisWeek) ? " thisweek" : "")
@@ -248,7 +306,7 @@ RenderHelper.prototype.getSlotDom = function(mode, cfgView) {
 		cur.add(1, p)
 	}
 
-	if (mode == "month") {
+	if (mode == "month" || mode == "weeks") {
 		wrapper.appendChild(table)
 	}
 
@@ -405,10 +463,6 @@ RenderHelper.prototype.getEventDom = function(ev, cfg, matched) {
 		}
 	})
 
-
-
-
-
 	eventWrapper.appendChild(symbolWrapper)
 	eventWrapper.appendChild(eventContainerWrapper)
 
@@ -471,7 +525,9 @@ RenderHelper.prototype.getRegionContainer = function(regionName) {
 	var className = regionName.replace("_", " ")
 	className = "region " + className
 	var nodes = document.getElementsByClassName(className)
-	if (nodes.length !== 1) return 0
+	if (nodes.length !== 1) {
+		return 0
+	}
 	var container = nodes[0].querySelector(".container")
 	return container
 }
@@ -658,9 +714,13 @@ Render.prototype.rollOverflow = function(mode, cfg) {
 	var self = this
 	var height = cfg.overflowHeight
 	var dom = document.getElementById("CALEXT_CONTAINER_" + mode)
-	if (typeof dom === "undefined" || dom == null) return 0
+	if (typeof dom === "undefined" || dom == null) {
+		return 0
+	}
 	var eventBoards = dom.getElementsByClassName("eventsBoard")
-	if (typeof eventBoards === "undefined" || eventBoards == null) return 0
+	if (typeof eventBoards === "undefined" || eventBoards == null) {
+		return 0
+	}
 	var nodes = [].slice.call(eventBoards)
 	nodes.forEach(function(node){
 		if (height < node.clientHeight  && height !== 0) {
@@ -677,17 +737,21 @@ Render.prototype.rollOverflow = function(mode, cfg) {
 				node.appendChild(n.cloneNode(1))
 			})
 		} else {
-				node.className = "eventsBoard"
-				node.style.overflow = "auto"
+			node.className = "eventsBoard"
+			node.style.overflow = "auto"
 		}
 	})
 }
 
 RenderHelper.prototype.replaceTitle = function(title, rArr) {
-	if(!Array.isArray(rArr) || rArr.length <= 0) return title
+	if(!Array.isArray(rArr) || rArr.length <= 0) {
+		return title
+	}
 	for(var i = 0; i < rArr.length; i++) {
 		var repl = rArr[i]
-		if(!Array.isArray(repl) || repl.length < 2) continue;
+		if(!Array.isArray(repl) || repl.length < 2) {
+			continue;
+		}
 		var r = (repl[0] instanceof RegExp) ? repl[0] : repl[0].toRegexp()
 
 		title = title.replace(r, repl[1])

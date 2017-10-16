@@ -46,7 +46,16 @@ var DEFAULT_CONFIG = {
 			showWeeks: 1,
 			weeksTitle: "weeks",
 			weeksFormat: "wo",
-		}
+		},
+		weeks: {
+			showWeeks: 1,
+			weeksTitle: "weeks",
+			weeksFormat: "wo",
+			weekdayFormat: "ddd",
+			titleFormat: "MMM D",
+			overTitleFormat: "MMM D",
+			counts: 4,
+		},
 	},
 	calendars: [],
 	defaultView: {

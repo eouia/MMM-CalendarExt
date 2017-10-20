@@ -344,18 +344,34 @@
     color:#FFF;
 }
 
+.CALEXT  .thismonth.today .header .title{
+    color:#000;
+}
+
 .CALEXT  .lastmonth,
 .CALEXT  .nextmonth {
 }
 
+/*
 .CALEXT  .today {
     background-color : rgba(255,255,255, 0.9);
+    color:#000;
 }
-
+*/
+/*
 .CALEXT  .eventLocation,
 .CALEXT  .eventTime {
     display:none;
 }
+*/
+
+
+.CALEXT .tableStyle .eventLocation,
+.CALEXT .tableStyle .eventTime {
+    display:none;
+}
+
+
 
 .CALEXT  .event {
     font-weight:normal;

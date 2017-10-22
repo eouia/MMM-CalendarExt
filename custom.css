@@ -146,6 +146,8 @@
     color:#F99;
 }
 
+.CALEXT .weeks .fulldayevent .eventTime,
+.CALEXT .month .fulldayevent .eventTime,
 .CALEXT .daily .fulldayevent .eventTime {
     display:none;
 }

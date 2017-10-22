@@ -508,8 +508,9 @@ RenderHelper.prototype.eventPeriodString = function(cfg, ev) {
 		var start = ""
 
 		start = sd.format(dateFormat)
+		var dailyLike = (mode == "daily" || mode == "month" || mode == "weeks")
 		start
-			= ((mode !== "daily" || !isSameDay) ? (start + " ") : "")
+			= ((!dailyLike || !isSameDay) ? (start + " ") : "")
 			+ sd.format(timeFormat)
 		end
 			= " - "

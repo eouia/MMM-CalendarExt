@@ -470,6 +470,10 @@ Module.register("MMM-CalendarExt", {
     var cleanedEvents = []
     for (var i=0; i<final.length; i++) {
       cleanedEvents.push({
+        name: final[i].name,
+        fullDayEvent: final[i].fullDayEvent,
+        styleName : final[i].styleName,
+        symbol: final[i].symbol,
         title: final[i].title,
         description: final[i].description,
         location: final[i].location,
@@ -564,9 +568,11 @@ Module.register("MMM-CalendarExt", {
   socketNotificationReceived: function(notification, payload) {
     switch (notification) {
       case 'CALENDAR_MODIFIED':
+        this.sendNotification("CALEXT_SAYS_CALENDAR_MODIFIED")
         this.events = payload
         this.makeIndex()
         this.draw()
+
         break
       case 'READY_TO_ADD_CALENDAR':
         this.addCalendars()

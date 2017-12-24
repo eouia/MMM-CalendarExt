@@ -208,25 +208,29 @@ Calendar.prototype.fetch = function() {
             var date = dates[i];
             var curEvent = event;
             var showRecurrence = true;
+            var curDuration = duration;
 
             startDate = moment(date);
 
+          	// Use just the date of the recurrence to look up overrides and exceptions
+            var dateLookupKey = date.toISOString().substring(0, 10);
+
           	// For each date that we're checking, it's possible that there is a recurrence override for that one day.
-            if ((curEvent.recurrences != undefined) && (curEvent.recurrences[date.toISOString()] != undefined))
+            if ((curEvent.recurrences != undefined) && (curEvent.recurrences[dateLookupKey] != undefined))
             {
             	// We found an override, so for this recurrence, use a potentially different title, start date, and duration.
-            	curEvent = curEvent.recurrences[date.toISOString()];
+            	curEvent = curEvent.recurrences[dateLookupKey];
             	startDate = moment(curEvent.start);
-            	duration = parseInt(moment(curEvent.end).format("x")) - parseInt(startDate.format("x"));
+            	curDuration = parseInt(moment(curEvent.end).format("x")) - parseInt(startDate.format("x"));
 			}
             // If there's no recurrence override, check for an exception date.  Exception dates represent exceptions to the rule.
-            else if ((curEvent.exdate != undefined) && (curEvent.exdate[date.toISOString()] != undefined))
+            else if ((curEvent.exdate != undefined) && (curEvent.exdate[dateLookupKey] != undefined))
             {
             	// This date is an exception date, which means we should skip it in the recurrence pattern.
             	showRecurrence = false;
             }
 
-            endDate = moment(parseInt(startDate.format("x")) + duration, 'x');
+            endDate = moment(parseInt(startDate.format("x")) + curDuration, 'x');
             var recurrenceTitle = getTitleFromEvent(curEvent);
 
           	// If this recurrence ends before the start of the date range, or starts after the end of the date range, don't add 

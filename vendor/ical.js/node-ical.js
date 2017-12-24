@@ -5,7 +5,6 @@ var ical = require('./ical')
 exports.fromURL = function(url, opts, cb){
   if (!cb)
     return;
-  request(url, opts, function (err, r, data) {
   	if (err)
   	{
   		return cb(err, null);
@@ -24,8 +23,6 @@ exports.parseFile = function(filename){
 }
 
 
-var rrule = require('rrule-alt').RRule
-var rrulestr = rrule.rrulestr
 
 ical.objectHandlers['RRULE'] = function(val, params, curr, stack, line){
   curr.rrule = line;

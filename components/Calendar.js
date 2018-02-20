@@ -255,7 +255,6 @@ Calendar.prototype.fetch = function() {
 								"recurred": 1,
 								"occurrence": i
 							}
-
 							if (startDate.isBefore(now) && endDate.isBefore(now)) {
 								oldEvents.push(et)
 							} else {
@@ -393,10 +392,13 @@ var isFullDayEvent = function(event) {
 	if (event.start.length === 8) {
 		return 1;
 	}
-
 	var start = event.start || 0;
 	var startDate = new Date(start);
 	var end = event.end || 0;
+
+	if (end == 0) {
+		return 1;
+	}
 
 	if (end - start === 24 * 60 * 60 * 1000 && startDate.getHours() === 0 && startDate.getMinutes() === 0) {
 		// Is 24 hours, and starts on the middle of the night.

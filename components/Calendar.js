@@ -147,10 +147,8 @@ Calendar.prototype.fetch = function() {
 				} else {
 					endDate = startDate;
 				}
-
 				// calculate the duration of the event for use with recurring events.
 				var duration = parseInt(endDate.format("x")) - parseInt(startDate.format("x"));
-
 				// If the start date has a date but no time, assume it"s intended to start
 				// at the start of the day.
 				if (event.start.length === 8) {
@@ -219,6 +217,10 @@ Calendar.prototype.fetch = function() {
 						}
 
 						endDate = moment(parseInt(startDate.format("x")) + duration, "x");
+						if (startDate.format("x") == endDate.format("x")) {
+							endDate = endDate.endOf("day")
+						}
+
 						var recurrenceTitle = getTitleFromEvent(curEvent);
 
 						// If this recurrence ends before the start of the date range, or starts after the end of the date range, don"t add

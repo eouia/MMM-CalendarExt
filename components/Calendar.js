@@ -126,7 +126,6 @@ Calendar.prototype.fetch = function() {
 				} else if (event.description) {
 					title = event.description
 				}
-
 				location = event.location || null
 				geo = event.geo || null
 				description = event.description || null
@@ -138,6 +137,7 @@ Calendar.prototype.fetch = function() {
 				} else {
 					uid = event.uid
 				}
+
 
 				// Get the start and end dates from the event.  If the end date is undefined,
 				// assume the event starts and ends on the same day.
@@ -154,10 +154,8 @@ Calendar.prototype.fetch = function() {
 				if (event.start.length === 8) {
 					startDate = startDate.startOf("day");
 				}
-
 				//RRULE exists? It means recurred.
 				if (typeof event.rrule !== "undefined") {
-
 					var addedEvents = 0;
 
 					// For recurring events, get the set of start dates that fall within the range
@@ -290,7 +288,7 @@ Calendar.prototype.fetch = function() {
 						isFulldayEvent = 1
 					}
 
-					if (startDate.isBefore(past) || endDate.isAfter(future)) {
+					if (endDate.isBefore(past) || startDate.isAfter(future)) {
 						continue
 					}
 					var et = {

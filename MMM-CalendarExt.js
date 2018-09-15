@@ -643,7 +643,7 @@ Module.register("MMM-CalendarExt", {
     var css = [
       {
         id:'materialDesignIcons',
-        href: 'https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css',
+        href: 'https://cdn.materialdesignicons.com/2.7.94/css/materialdesignicons.min.css',
       },
       {
         id:'emojiCss',
@@ -651,7 +651,7 @@ Module.register("MMM-CalendarExt", {
       },
       {
         id:'flag-icon-CSS',
-        href: 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/2.8.0/css/flag-icon.min.css'
+        href: 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.1.0/css/flag-icon.min.css'
       }
     ]
     css.forEach(function(c) {

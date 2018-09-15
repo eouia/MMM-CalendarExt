@@ -475,7 +475,6 @@ RenderHelper.prototype.eventPeriodString = function(cfg, ev) {
 	var sd = moment(parseInt(ev.startDate)).locale(lc)
 	var ed = moment(parseInt(ev.endDate)).locale(lc)
 	var text = ""
-
 	if (mode == "upcoming") {
 		if(cfg.useRelative) {
 			text = sd.fromNow()
@@ -517,6 +516,9 @@ RenderHelper.prototype.eventPeriodString = function(cfg, ev) {
 			+ ((isSameDay) ? "" : ed.format(dateFormat)) + " "
 			+ ed.format(timeFormat)
 		end = (isSameTime) ? "" : end
+		if (cfg.onlyStartingTime) {
+			end = ""
+		}
 		text = start + end
 	}
 	return text

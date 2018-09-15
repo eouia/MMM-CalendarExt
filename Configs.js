@@ -64,6 +64,7 @@ var DEFAULT_CONFIG = {
 		overflowRolling: 0,
 		overflowHeight: 0,
 		overflowDuration: 2,
+		onlyStartingTime: 0,
 		timeFormat: "HH:mm",
 		dateFormat: "MMM Do",
 		fullDayEventDateFormat: "MMM Do",

@@ -1,0 +1,483 @@
+.CALEXT .fa-stack-1x {
+    /*color:#000;*/
+}
+
+.CALEXT .current .event,
+.CALEXT .upcoming .event {
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+.CALEXT .current .header .title,
+.CALEXT .upcoming .header .title {
+  text-align:inherit;
+}
+
+.CALEXT .current .header .subtitle,
+.CALEXT .upcoming .header .subtitle {
+  display:none;
+}
+
+
+
+.CALEXT .startHere {
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+
+.CALEXT .endHere,
+.CALEXT .endHere .eventContainer {
+
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+
+.CALEXT .wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: flex-start;
+}
+
+
+.CALEXT .slot {
+    margin-left:5px;
+    margin-right:5px;
+    flex-grow: 1;
+    flex-basis: 100px;
+    box-sizing:border-box;
+    margin-bottom:5px;
+}
+
+
+
+.CALEXT .slot .header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: baseline;
+    align-content: flex-end;
+    border-bottom: 2px solid #CCC;
+    padding:2px;
+    margin-bottom:0;
+    border-radius:15px 15px 0 0;
+}
+
+.CALEXT .slot .header > * {
+    opacity:1.0;
+}
+.CALEXT .slot .header .title,
+.CALEXT .slot .header .subtitle {
+    flex-grow: 1;
+    flex-basis: auto;
+    line-height:100%;
+    opacity:1;
+}
+
+.CALEXT .slots .eventsBoard {
+  overflow:hidden;
+}
+
+.CALEXT .header .title {
+    font-weight:bold;
+    text-align:left;
+    color:#FFF;
+    padding-left:10px;
+}
+
+
+
+.CALEXT .header .subtitle {
+    font-weight:bold;
+    text-align:right;
+    font-size:70%;
+    padding-right:10px;
+}
+
+.CALEXT .thisyear .header {
+  background:rgba(255,255,255, 0.25)
+}
+
+.CALEXT .thismonth .header {
+  background:rgba(255,255,255, 0.5)
+}
+
+.CALEXT .thisweek .header {
+  background:rgba(255,255,255, 0.75)
+}
+
+.CALEXT .thisweek .header .subtitle{
+  color:#333
+}
+
+
+.CALEXT .today .header {
+    background:rgba(255,255,255,1.0);
+}
+
+.CALEXT .today .header .subtitle {
+    color:#000;
+}
+
+.CALEXT .today .header .title {
+    color:#000;
+}
+
+
+
+
+.CALEXT .day_6 .header {
+    background:rgba(51,51,153,0.5);
+}
+
+.CALEXT .day_7 .header {
+    background:rgba(153,51,51,0.5);
+}
+
+.CALEXT .slot.day_6 .subtitle {
+    color:#99F;
+}
+
+.CALEXT .slot.day_7 .subtitle {
+    color:#F99;
+}
+
+.CALEXT .weeks .fulldayevent .eventTime,
+.CALEXT .month .fulldayevent .eventTime,
+.CALEXT .daily .fulldayevent .eventTime {
+    display:none;
+}
+
+.CALEXT .monthly .eventLocation {
+    /*
+    display:none;
+    */
+}
+
+
+
+
+.CALEXT .events {
+    list-style:none;
+    padding:0;
+    margin:0;
+    color:#FFF;
+}
+
+.CALEXT .overflowed {
+    /* overflow:hidden; */
+}
+
+.CALEXT .overflowed .events {
+    position:relative;
+    animation:scroll linear infinite;
+}
+
+@keyframes scroll{
+    from {
+        transform: translate3d(0,0,0);
+    }
+    to {
+        transform: translate3d(0,-100%,0);
+    }
+}
+
+
+
+
+
+
+
+
+.CALEXT .eventTime {
+    text-align:right;
+    font-size:80%;
+    font-weight:normal;
+    order:1;
+}
+
+.CALEXT .eventLocation {
+    text-align:right;
+    font-size:80%;
+    font-weight:normal;
+    order:4;
+}
+
+.CALEXT .eventDescription {
+  order:3;
+  display:none;
+}
+
+.CALEXT .eventContent {
+    order:2;
+    width:100%;
+    text-align:left;
+}
+
+.CALEXT .upcoming .eventTime {
+    order:2;
+}
+
+
+.CALEXT .upcoming .eventContent {
+    order:1;
+}
+
+
+.CALEXT .tableStyle {
+    margin:auto;
+    max-width: 90%;
+}
+
+
+.CALEXT .monthTitle {
+  display:block;
+  width:100%;
+  text-align:right;
+  font-weight:bold;
+  color: #FFF;
+  padding-right:10%;
+  font-size:150%;
+  line-height:150%;
+}
+
+
+.CALEXT .tableStyle .eventContent {
+    text-overflow:ellipsis;
+    font-weight:normal;
+    font-size:70%;
+}
+
+
+.CALEXT .tableStyle th {
+    font-size: 70%;
+    font-weight: normal;
+    border:1px solid #000;
+}
+
+
+.CALEXT .tableStyle td {
+    padding:0;
+    margin:0;
+    vertical-align:top;
+    border:1px solid #000;
+    width:14%;
+}
+
+
+.CALEXT .tableStyle .header {
+    padding:0;
+    margin:0;
+    text-align:right;
+    border-radius:0
+}
+
+
+.CALEXT .tableStyle .header .title {
+    font-size:50%;
+    padding:0;
+    padding-right:5px;
+    margin:0;
+    text-align:right;
+    line-height:100%;
+    color:#999
+}
+
+.CALEXT .tableStyle .header .subtitle {
+  display:none;
+}
+
+
+/* for weeks and month */
+.CALEXT  .tableStyle .thismonth.day_6 .header {
+    background:#66C;
+    color:#99F;
+}
+
+.CALEXT  .tableStyle .thismonth.day_7 .header {
+    background:#C66;
+    color:#F99;
+}
+
+.CALEXT  .tableStyle .thismonth.day_6 .header .title{
+    color:#CCF;
+}
+
+.CALEXT  .tableStyle .thismonth.day_7 .header .title{
+    color:#FCC;
+}
+
+.CALEXT  .weeks .day_6  {
+    background:rgba(51,51,153,0.3);
+}
+
+.CALEXT  .weeks .day_7 {
+    background:rgba(153,51,153,0.3);
+}
+
+.CALEXT  .tableStyle .day_6 {
+    background:rgba(51,51,255,0.3);
+    color:#99F;
+}
+
+.CALEXT  .tableStyle .day_7 {
+    background:rgba(255,51,51,0.3);
+    color:#F99;
+}
+
+.CALEXT  tr.thisweek {
+    background-color : rgba(255,255,127, 0.1);
+}
+
+.CALEXT  .thisweek th {
+    color:#FF9;
+    font-weight:bold;
+}
+
+.CALEXT  .thismonth {
+    background-color : rgba(127,127,127, 0.1);
+}
+
+.CALEXT  .thismonth .header .title{
+    color:#FFF;
+}
+
+.CALEXT  .thismonth.today .header .title{
+    color:#000;
+}
+
+.CALEXT  .lastmonth,
+.CALEXT  .nextmonth {
+}
+
+/*
+.CALEXT  .today {
+    background-color : rgba(255,255,255, 0.9);
+    color:#000;
+}
+*/
+/*
+.CALEXT  .eventLocation,
+.CALEXT  .eventTime {
+    display:none;
+}
+*/
+
+
+.CALEXT .tableStyle .eventLocation,
+.CALEXT .tableStyle .eventTime {
+    display:none;
+}
+
+
+
+.CALEXT  .event {
+    font-weight:normal;
+    font-size:50%;
+}
+
+.CALEXT  .event .symbol {
+    order:1;
+    display:block;
+    flex-basis:20px;
+    text-align:center;
+    min-width:20px;
+}
+
+.CALEXT   .events .symbol.emoji {
+  font-size:50%;
+}
+
+.CALEXT  .tableStyle .today {
+  border:3px solid #DEA527;
+}
+
+.CALEXT  .tableStyle .today .header {
+    background-color:#FFF;
+}
+
+.CALEXT  .tableStyle .today .header .title {
+    color:#000;
+}
+
+
+.CALEXT .weeks th{
+    width:100px;
+    font-weight:normal;
+    font-size:50%;
+}
+
+.CALEXT .weeks th {
+    width:100px;
+}
+
+.CALEXT .oneLineEvent {
+  line-height:1em;
+  max-height:1em;
+  text-overflow:ellipsis;
+  overflow:hidden;
+}
+
+/** Preset styles of event **/
+.CALEXT .md-12 {
+  font-size: 100%;
+}
+
+
+.CALEXT .symbol {
+    order:1;
+    display:block;
+    text-align:center;
+    font-size:100%;
+    align-self:center;
+    padding-left:3px;
+    padding-right:3px;
+    min-width:32px;
+}
+
+.CALEXT .eventContainer {
+  text-align:left;
+  order:2;
+  display:flex;
+  align-items:stretch;
+  width:100%;
+  flex-direction: column;
+  padding-right:10px;
+}
+
+.CALEXT .event .eventContainer {
+    background-color:rgba(1,1,1, 0.7);
+    color:#FFF;
+    padding:2px 10px 2px 5px;
+}
+
+.CALEXT .events .symbol.flag_icon-css,
+.CALEXT .events .symbol.emoji {
+  /*background-color: inherit;*/
+}
+
+
+
+.CALEXT .event.fulldayevent .eventContainer {
+  background-color:inherit;
+}
+
+.CALEXT .event {
+    text-align:left;
+    font-size:60%;
+    margin:0;
+    font-weight:bold;
+    line-height:100%;
+    margin-top : 1px;
+    /*box-sizing: border-box;*/
+    color:#000;
+    background-color:#CCC;
+    height:100%;
+    padding:0;
+    display:flex;
+    flex-direction:row;
+}

@@ -277,8 +277,11 @@ Calendar.prototype.fetch = function() {
 							endDate = moment(startDate).add(moment.duration(event.duration))
 						} else {
 							//event.end and duration don"t exist.
+							//so, if startDate is 000000, It's fullDayEvent.
+							if (startDate.format("HHmmss") == "000000") {
+								isFulldayEvent = 1
+							}
 							endDate = moment(startDate)
-							isFulldayEvent = 1
 						}
 					}
 					if(

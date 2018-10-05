@@ -495,7 +495,7 @@ RenderHelper.prototype.eventPeriodString = function(cfg, ev) {
 
 	var isSameTime = (ed.format("YYMMDDHHmm") == sd.format("YYMMDDHHmm")) ? 1 : 0
 	var isSameDay = (ed.format("YYMMDD") == sd.format("YYMMDD")) ? 1 : 0
-
+	
 	if(ev.fullDayEvent) {
 		var format = cfg.fullDayEventDateFormat
 		text = sd.format(format)

@@ -13,7 +13,7 @@ Module.register("MMM-CalendarExt", {
   },
 
   getStyles: function () {
-    return ["font-awesome.css", "custom.css", "preset.css"]
+    return ["font-awesome.css", "MMM-CalendarExt.css", "preset.css"]
   },
 
   getCommands: function(register) {

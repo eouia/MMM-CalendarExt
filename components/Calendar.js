@@ -84,7 +84,7 @@ Calendar.prototype.fetch = function() {
 
 	iCal.fromURL(this.httpUrl, this.opts, function(err, data) {
 		if (err) {
-			console.log("Error in iCal Parsing.")
+			console.log(self.httpUrl, " >> Error in iCal Parsing.")
 			console.log(self.opts)
 			console.log(err)
 			self.nonewEvents([])

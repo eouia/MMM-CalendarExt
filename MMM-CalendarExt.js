@@ -411,7 +411,7 @@ Module.register("MMM-CalendarExt", {
     events.forEach((e)=>{
       if(e.profiles.length > 0) {
         var epf = new Set(e.profiles)
-        profileSet = new Set([...profielSet, ...epf])
+        profileSet = new Set([...profileSet, ...epf])
       }
       if(e.name) nameSet.add(e.name)
     })

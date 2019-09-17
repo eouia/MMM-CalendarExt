@@ -495,7 +495,7 @@ RenderHelper.prototype.eventPeriodString = function(cfg, ev) {
 
 	var isSameTime = (ed.format("YYMMDDHHmm") == sd.format("YYMMDDHHmm")) ? 1 : 0
 	var isSameDay = (ed.format("YYMMDD") == sd.format("YYMMDD")) ? 1 : 0
-	
+
 	if(ev.fullDayEvent) {
 		var format = cfg.fullDayEventDateFormat
 		text = sd.format(format)
@@ -698,13 +698,15 @@ Render.prototype.drawViews = function(curConfig, events) {
 
 	var self = this
 	showViews.forEach(function(mode) {
+		console.log(mode)
 		var viewConfig = curConfig.getViewConfig(mode)
+		console.log(viewConfig)
 		var position = viewConfig.position
 		var targetDom = document.getElementById("CALEXT_CONTAINER_" + mode)
 		var showEmptyView = curConfig.system.showEmptyView
 		var isEmptyView
 			= (targetDom.getElementsByClassName("event").length) ? 0 : 1
-
+		console.log(">", showEmptyView, isEmptyView)
 		if ((showEmptyView == 0 && isEmptyView == 1)) {
 			//do nothing
 			targetDom.style.display = "none"

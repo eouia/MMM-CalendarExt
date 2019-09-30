@@ -27,6 +27,10 @@ git clone https://github.com/eouia/MMM-CalendarExt.git
 ## Configuration
 See the page about [Configuration](https://github.com/eouia/MMM-CalendarExt/wiki/Configuration).
 
+## Plugins
+- [MMM-CalendarExtTimeline](https://github.com/eouia/MMM-CalendarExtTimeline)
+- [MMM-CalendarExtMinimonth](https://github.com/eouia/MMM-CalendarExtMinimonth)
+
 ## Manipulation of looks
 See the page about [Looks](https://github.com/eouia/MMM-CalendarExt/wiki/Manipulation-of-looks).
 
